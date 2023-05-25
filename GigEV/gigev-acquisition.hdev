@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="21.11.0.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>*</c>
+<c>* -----------</c>
+<c>* INFORMATION</c>
+<c>* -----------</c>
+<c>* In order to list all available devices on the network, call 'info_framegrabber'.</c>
+<c>* Photoneo devices are described as the following:</c>
+<c>* '</c>
+<c>*   | device:48b02d681e5a_Photoneo_MotionCam3DColor</c>
+<c>*   | unique_name:48b02d681e5a_Photoneo_MotionCam3DColor</c>
+<c>*   | interface:Esen_ITF_08002708c6980a06725affff0000</c>
+<c>*   | producer:Esen</c>
+<c>*   | vendor:Photoneo</c>
+<c>*   | model:MotionCam-3D Color</c>
+<c>*   | tl_type:GEV</c>
+<c>*   | device_ip:10.6.118.6/16</c>
+<c>*   | device_sn:TBR-046</c>
+<c>*   | interface_ip:10.6.114.90/16</c>
+<c>*   | status:available</c>
+<c>* '</c>
+<c>*</c>
+<l>info_framegrabber ('GigEVision2', 'info_boards', Information, DeviceList)</l>
+<c></c>
+<c>*</c>
+<c>* ----------</c>
+<c>* CONNECTION</c>
+<c>* ----------</c>
+<c>* Connection requires to input the device's ID. HALCON's GigE Vision acquisition interface</c>
+<c>* does not utilize serial numbers. Therefore one must use different ID which contains</c>
+<c>* the device's MAC address.</c>
+<c>*</c>
+<l>device_id := '&lt;mac-addr&gt;_Photoneo_&lt;device-type&gt;'</l>
+<l>open_framegrabber ('GigEVision2', 0, 0, 0, 0, 0, 0, 'progressive', -1, 'default', -1, 'false', 'default', device_id, 0, -1, AcqHandle)</l>
+<c></c>
+<c>*</c>
+<c>* ----------</c>
+<c>* COMPONENTS</c>
+<c>* ----------</c>
+<c>* For detailed information about supported components see C++ examples</c>
+<c>* or PhoXi Control manual for actual code samples.</c>
+<c>*</c>
+<c></c>
+<c>* 'MultiPart' payload format is recommended, because chunk data are not handled correctly by HALCON.</c>
+<l>set_framegrabber_param (AcqHandle, 'TestPayloadFormatMode', 'MultiPart')</l>
+<c></c>
+<c>* Photoneo devices provide multiple components</c>
+<c>* -&gt; Intensity</c>
+<c>* -&gt; Range</c>
+<c>* -&gt; Confidence</c>
+<c>* -&gt; Normal</c>
+<c>* -&gt; Event (MotionCam-3D exclusive)</c>
+<c>* -&gt; ColorCamera (MotionCam-3D Color exclusive)</c>
+<c>* -&gt; Reprojection</c>
+<c></c>
+<c>* In order to enable or disable a component,</c>
+<c>* 'ComponenSelector' and 'ComponenEnable' features are required.</c>
+<c>* In this example 'Intensity' and 'Confidence' are enabled.</c>
+<l>set_framegrabber_param (AcqHandle, 'ComponentSelector', 'Intensity')</l>
+<l>set_framegrabber_param (AcqHandle, 'ComponentEnable', true)</l>
+<l>set_framegrabber_param (AcqHandle, 'ComponentSelector', 'Confidence')</l>
+<l>set_framegrabber_param (AcqHandle, 'ComponentEnable', true)</l>
+<c></c>
+<c>* Adjust default timeout depending on payload size and network speed</c>
+<l>set_framegrabber_param (AcqHandle, 'grab_timeout', 5000)</l>
+<c></c>
+<c>*</c>
+<c>* -----------</c>
+<c>* ACQUISITION</c>
+<c>* -----------</c>
+<c>* Currently only 'Continuous' acquisition mode and 'FrameStart' trigger selector is supported.</c>
+<c>* Examples for Freerun and Software trigger modes can be found below.</c>
+<c>*</c>
+<l>set_framegrabber_param (AcqHandle, 'AcquisitionMode', 'Continuous')</l>
+<l>set_framegrabber_param (AcqHandle, 'TriggerSelector', 'FrameStart')</l>
+<c></c>
+<c>* Freerun</c>
+<c>* -------</c>
+<l>set_framegrabber_param (AcqHandle, 'TriggerMode', 'Off')</l>
+<c></c>
+<l>for Index := 1 to 5 by 1</l>
+<c>    * Retrieve only image (Intensity component must be enabled)</c>
+<l>    grab_image (Image, AcqHandle)</l>
+<c>    * do something with image...</c>
+<c>    </c>
+<c>    * Rerieve every component enabled</c>
+<l>    grab_data (Payload, Region, Countours, AcqHandle, Data)</l>
+<l>    select_obj (Payload, Intensity, 1)</l>
+<l>    select_obj (Payload, Confidence, 2)</l>
+<c>    * do something with Intensity and Confidence components...</c>
+<l>endfor</l>
+<c></c>
+<c></c>
+<c>* SoftwareTrigger</c>
+<c>* ---------------</c>
+<l>set_framegrabber_param (AcqHandle, 'TriggerMode', 'On')</l>
+<l>set_framegrabber_param (AcqHandle, 'TriggerSource', 'Software')</l>
+<l>grab_image_start (AcqHandle, 0)</l>
+<c></c>
+<l>for Index := 1 to 5 by 1</l>
+<l>    set_framegrabber_param (AcqHandle, 'TriggerSoftware', 1)</l>
+<c>    * Retrieve only image (Intensity component must be enabled)</c>
+<l>    grab_image_async (Image, AcqHandle, 0)</l>
+<c>    * do something with image...</c>
+<c>    </c>
+<l>    set_framegrabber_param (AcqHandle, 'TriggerSoftware', 1)</l>
+<c>    * Rerieve every component enabled</c>
+<l>    grab_data_async (Payload, Region, Countours, AcqHandle, 0, Data)</l>
+<l>    select_obj (Payload, Intensity, 1)</l>
+<l>    select_obj (Payload, Confidence, 2)</l>
+<c>    * do something with Intensity and Confidence components...</c>
+<l>endfor</l>
+<c></c>
+<l>close_framegrabber (AcqHandle)</l>
+<c></c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

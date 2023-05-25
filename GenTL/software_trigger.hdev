@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="21.11.0.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>*</c>
+<c>* Example for the usage of the PhotoneoGenTLProducer (photoneo.cti)</c>
+<c>* GENICAM_GENTL64_PATH environment variable should point to a directory, where the .cti file is located</c>
+<c>*   -&gt; by default "%PHOXI_CONTROL_PATH%/API/bin/photoneo.cti"</c>
+<c>* PhoXiControl must be running!</c>
+<c>*</c>
+<l>info_framegrabber ('GenICamTL', 'device', Information, DeviceList)</l>
+<l>* device_id := 'PhotoneoTL_DEV_&lt;ID&gt;'</l>
+<l>device_id := 'PhotoneoTL_DEV_InstalledExamples-basic-example'</l>
+<c></c>
+<l>open_framegrabber ('GenICamTL', 0, 0, 0, 0, 0, 0, 'progressive', -1, 'default', -1, 'false', 'default', device_id, 0, -1, AcqHandle)</l>
+<c></c>
+<l>set_framegrabber_param (AcqHandle, 'GetFrameTimeout', 10000)</l>
+<c></c>
+<c>* IMPORTANT:</c>
+<c>* Need to set `UseFixedDataOrdering` to false in order for HALCON to receive multipart data.</c>
+<c>* Our devices can send up to 8 different output data which can be enabled/disabled by the user.</c>
+<c>* In case of disabled - empty data are sent, but HALCON interprets it as invalid data.</c>
+<l>set_framegrabber_param (AcqHandle, 'UseFixedDataOrdering', false)</l>
+<c></c>
+<c>* Order of transfered images is fixed.</c>
+<c>* By disabling some items, the order for `select_obj` is altered.</c>
+<c>* Note: EventMap is a MotionCam-3D feature only</c>
+<c>* Note: ColorCameraImage is a MotionCam-3D Color feature only</c>
+<l>set_framegrabber_param (AcqHandle, 'SendTexture', 1)</l>
+<l>set_framegrabber_param (AcqHandle, 'SendPointCloud', 1)</l>
+<l>set_framegrabber_param (AcqHandle, 'SendNormalMap', 1)</l>
+<l>set_framegrabber_param (AcqHandle, 'SendDepthMap', 1)</l>
+<l>set_framegrabber_param (AcqHandle, 'SendConfidenceMap', 1)</l>
+<l>* set_framegrabber_param (AcqHandle, 'SendEventMap', 1)</l>
+<l>* set_framegrabber_param (AcqHandle, 'SendColorCameraImage', 1)</l>
+<c></c>
+<c>* Make sure device is in `Software` trigger mode</c>
+<l>set_framegrabber_param (AcqHandle, 'PhotoneoTriggerMode', 'Software')</l>
+<c></c>
+<c>* Trigger frame by calling property's setter.</c>
+<c>* Must call TriggerFrame before every fetch.</c>
+<c></c>
+<c>* trigger first frame</c>
+<l>set_framegrabber_param (AcqHandle, 'TriggerFrame', -1)</l>
+<c>* grab first frame (image only)</c>
+<l>grab_image (Image, AcqHandle) </l>
+<c></c>
+<c>* trigger second frame</c>
+<l>set_framegrabber_param (AcqHandle, 'TriggerFrame', -1)</l>
+<c>* grab second frame (image only)</c>
+<l>grab_image (Image, AcqHandle) </l>
+<c></c>
+<c>* trigger third frame</c>
+<l>set_framegrabber_param (AcqHandle, 'TriggerFrame', -1)</l>
+<c>* grab third frame (including 3D data)</c>
+<l>grab_data (ImageData, Region, Contours, AcqHandle, Data)  </l>
+<l>select_obj (ImageData, Texture, 1)</l>
+<l>select_obj (ImageData, PointCloudX, 2)</l>
+<l>select_obj (ImageData, PointCloudY, 3)</l>
+<l>select_obj (ImageData, PointCloudZ, 4)</l>
+<l>compose3 (PointCloudX, PointCloudY, PointCloudZ, PointCloud)</l>
+<l>select_obj (ImageData, NormalMapX, 5)</l>
+<l>select_obj (ImageData, NormalMapY, 6)</l>
+<l>select_obj (ImageData, NormalMapZ, 7)</l>
+<l>compose3 (NormalMapX, NormalMapY, NormalMapZ, NormalMap)</l>
+<l>select_obj (ImageData, DepthMap, 8)</l>
+<l>select_obj (ImageData, ConfidenceMap, 9)</l>
+<l>* select_obj (ImageData, EventMap, 10)</l>
+<l>* select_obj (ImageData, ColorCameraImage, 11)</l>
+<c> </c>
+<c>* Do something with data</c>
+<c></c>
+<l>close_framegrabber (AcqHandle)</l>
+<c></c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

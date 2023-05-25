@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="21.11.0.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>*</c>
+<c>* Example for the usage of the PhotoneoGenTLProducer (photoneo.cti)</c>
+<c>* PhoXiControl must be running!</c>
+<c>*</c>
+<l>info_framegrabber ('GenICamTL', 'device', Information, device_list)</l>
+<l>* device_id := 'PhotoneoTL_DEV_&lt;ID&gt;'</l>
+<l>device_id := 'PhotoneoTL_DEV_InstalledExamples-basic-example'</l>
+<c></c>
+<l>open_framegrabber ('GenICamTL', 0, 0, 0, 0, 0, 0, 'progressive', -1, 'default', -1, 'false', 'default', device_id, 0, -1, AcqHandle)</l>
+<c></c>
+<c>* --&gt; General settings</c>
+<c>* ReadOnly</c>
+<l>get_framegrabber_param (AcqHandle, 'IsPhoXiControlRunning', is_phoxi_control_running)</l>
+<l>get_framegrabber_param (AcqHandle, 'PhotoneoAPIVersion', api_version)</l>
+<l>get_framegrabber_param (AcqHandle, 'PhotoneoDeviceID', id)</l>
+<l>get_framegrabber_param (AcqHandle, 'PhotoneoDeviceType', device_type)</l>
+<l>get_framegrabber_param (AcqHandle, 'IsAcquiring', is_acquiring)</l>
+<l>get_framegrabber_param (AcqHandle, 'IsConnected', is_connected)</l>
+<l>get_framegrabber_param (AcqHandle, 'PhotoneoDeviceFirmwareVersion', device_firmware_version)</l>
+<l>get_framegrabber_param (AcqHandle, 'PhotoneoDeviceVariant', device_variant)</l>
+<l>get_framegrabber_param (AcqHandle, 'PhotoneoDeviceFeatures', device_features)</l>
+<c></c>
+<c>* `Freerun` or `Software`</c>
+<l>get_framegrabber_param (AcqHandle, 'PhotoneoTriggerMode', trigger_mode)</l>
+<l>set_framegrabber_param (AcqHandle, 'PhotoneoTriggerMode', 'Freerun')</l>
+<c>* true or false</c>
+<l>get_framegrabber_param (AcqHandle, 'WaitForGrabbingEnd', wait_for_grabbing_end)</l>
+<l>set_framegrabber_param (AcqHandle, 'WaitForGrabbingEnd', false)</l>
+<c>* Timeout in ms, or values 0 (ZeroTimeout) and -1 (Infinity)</c>
+<l>get_framegrabber_param (AcqHandle, 'GetFrameTimeout', get_frame_timeout)</l>
+<l>set_framegrabber_param (AcqHandle, 'GetFrameTimeout', 5000)</l>
+<c>* true or false</c>
+<l>get_framegrabber_param (AcqHandle, 'LogoutAfterDisconnect', logout_after_disconnect)</l>
+<l>set_framegrabber_param (AcqHandle, 'LogoutAfterDisconnect', false)</l>
+<c>* true or false</c>
+<l>get_framegrabber_param (AcqHandle, 'StopAcquisitionAfterDisconnect', stop_acquisition_after_disconnect)</l>
+<l>set_framegrabber_param (AcqHandle, 'StopAcquisitionAfterDisconnect', false)</l>
+<c></c>
+<c></c>
+<c>* --&gt; Capturing settings</c>
+<c>* &lt;1, 20&gt;</c>
+<l>get_framegrabber_param (AcqHandle, 'ShutterMultiplier', shutter_multiplier)</l>
+<l>set_framegrabber_param (AcqHandle, 'ShutterMultiplier', 5)</l>
+<c>* &lt;1, 20&gt;</c>
+<l>get_framegrabber_param (AcqHandle, 'ScanMultiplier', scan_multiplier)</l>
+<l>set_framegrabber_param (AcqHandle, 'ScanMultiplier', 5)</l>
+<c>* `Res_2064_1544` or `Res_1032_772`</c>
+<l>get_framegrabber_param (AcqHandle, 'Resolution', resolution)</l>
+<l>set_framegrabber_param (AcqHandle, 'Resolution', 'Res_1032_772')</l>
+<c>* true or false</c>
+<l>get_framegrabber_param (AcqHandle, 'CameraOnlyMode', camera_only_mode)</l>
+<l>set_framegrabber_param (AcqHandle, 'CameraOnlyMode', false)</l>
+<c>* true or false</c>
+<l>get_framegrabber_param (AcqHandle, 'AmbientLightSuppression', ambient_light_suppression)</l>
+<l>set_framegrabber_param (AcqHandle, 'AmbientLightSuppression', false)</l>
+<c>* `Normal` or `Interreflections`</c>
+<l>get_framegrabber_param (AcqHandle, 'CodingStrategy', coding_strategy)</l>
+<l>set_framegrabber_param (AcqHandle, 'CodingStrategy', 'Normal')</l>
+<c>* `Fast`, `High` or `Ultra`</c>
+<l>get_framegrabber_param (AcqHandle, 'CodingQuality', coding_quality)</l>
+<l>set_framegrabber_param (AcqHandle, 'CodingQuality', 'Ultra')</l>
+<c>* `Computed`, `LED`, `Laser` or `Focus`</c>
+<l>get_framegrabber_param (AcqHandle, 'TextureSource', texture_source)</l>
+<l>set_framegrabber_param (AcqHandle, 'TextureSource', 'LED')</l>
+<c>* &lt;10.24, 100.352&gt;</c>
+<l>get_framegrabber_param (AcqHandle, 'SinglePatternExposure', single_pattern_exposure)</l>
+<l>set_framegrabber_param (AcqHandle, 'SinglePatternExposure', 10.24)</l>
+<c>* &lt;0.0, 100.0&gt;</c>
+<l>get_framegrabber_param (AcqHandle, 'MaximumFPS', maximum_fps)</l>
+<l>set_framegrabber_param (AcqHandle, 'MaximumFPS', 25)</l>
+<c>* &lt;1, 4095&gt;</c>
+<l>get_framegrabber_param (AcqHandle, 'LaserPower', laser_power)</l>
+<l>set_framegrabber_param (AcqHandle, 'LaserPower', 2000)</l>
+<c>* &lt;0, 512&gt;</c>
+<l>get_framegrabber_param (AcqHandle, 'ProjectionOffsetLeft', projection_offset_left)</l>
+<l>set_framegrabber_param (AcqHandle, 'ProjectionOffsetLeft', 50)</l>
+<c>* &lt;0, 512&gt;</c>
+<l>get_framegrabber_param (AcqHandle, 'ProjectionOffsetRight', projection_offset_right)</l>
+<l>set_framegrabber_param (AcqHandle, 'ProjectionOffsetRight', 50)</l>
+<c>* &lt;1, 4095&gt;</c>
+<l>get_framegrabber_param (AcqHandle, 'LEDPower', led_power)</l>
+<l>set_framegrabber_param (AcqHandle, 'LEDPower', 2000)</l>
+<c>* true or false</c>
+<l>get_framegrabber_param (AcqHandle, 'HardwareTrigger', hardware_trigger)</l>
+<l>set_framegrabber_param (AcqHandle, 'HardwareTrigger', true)</l>
+<c>* `Falling`, `Rising` or `Both</c>
+<l>get_framegrabber_param (AcqHandle, 'HardwareTriggerSignal', hardware_trigger_signal)</l>
+<l>set_framegrabber_param (AcqHandle, 'HardwareTriggerSignal', 'Both')</l>
+<c></c>
+<c></c>
+<c>* --&gt; Processing settings</c>
+<c>* &lt;0.0, 100.0&gt;</c>
+<l>get_framegrabber_param (AcqHandle, 'MaxInaccuracy', max_inaccuracy)</l>
+<l>set_framegrabber_param (AcqHandle, 'MaxInaccuracy', 3.5)</l>
+<c>* `MinX`, `MinY`, `MinZ`, `MaxX`, `MaxY` or `MaxZ`</c>
+<l>get_framegrabber_param (AcqHandle, 'CameraSpaceSelector', camera_space_selector)</l>
+<l>set_framegrabber_param (AcqHandle, 'CameraSpaceSelector', 'MinZ')</l>
+<c>* &lt;-999999.0, 999999.0&gt;</c>
+<l>get_framegrabber_param (AcqHandle, 'CameraSpaceValue', camera_space_value)</l>
+<l>set_framegrabber_param (AcqHandle, 'CameraSpaceValue', 100.5)</l>
+<c>* `MinX`, `MinY`, `MinZ`, `MaxX`, `MaxY` or `MaxZ`</c>
+<l>get_framegrabber_param (AcqHandle, 'PointCloudSpaceSelector', point_cloud_space_selector)</l>
+<l>set_framegrabber_param (AcqHandle, 'PointCloudSpaceSelector', 'MaxY')</l>
+<c>* &lt;-999999.0, 999999.0&gt;</c>
+<l>get_framegrabber_param (AcqHandle, 'PointCloudSpaceValue', point_cloud_space_value)</l>
+<l>set_framegrabber_param (AcqHandle, 'PointCloudSpaceValue', 200.5)</l>
+<c>* &lt;0.0, 90.0&gt;</c>
+<l>get_framegrabber_param (AcqHandle, 'MaxCameraAngle', max_camera_angle)</l>
+<l>set_framegrabber_param (AcqHandle, 'MaxCameraAngle', 10)</l>
+<c>* &lt;0.0, 90.0&gt;</c>
+<l>get_framegrabber_param (AcqHandle, 'MaxProjectorAngle', max_projector_angle)</l>
+<l>set_framegrabber_param (AcqHandle, 'MaxProjectorAngle', 10)</l>
+<c>* &lt;0.0, 90.0&gt;</c>
+<l>get_framegrabber_param (AcqHandle, 'MinHalfwayAngle', min_halfway_angle)</l>
+<l>set_framegrabber_param (AcqHandle, 'MinHalfwayAngle', 20)</l>
+<c>* &lt;0.0, 90.0&gt;</c>
+<l>get_framegrabber_param (AcqHandle, 'MaxHalfwayAngle', max_halfway_angle)</l>
+<l>set_framegrabber_param (AcqHandle, 'MaxHalfwayAngle', 25)</l>
+<c>* true or false</c>
+<l>get_framegrabber_param (AcqHandle, 'CalibrationVolumeOnly', calibration_volume_only)</l>
+<l>set_framegrabber_param (AcqHandle, 'CalibrationVolumeOnly', true)</l>
+<c>* `Sharp`, `Normal` or `Smooth`</c>
+<l>get_framegrabber_param (AcqHandle, 'SurfaceSmoothness', surface_smoothness)</l>
+<l>set_framegrabber_param (AcqHandle, 'SurfaceSmoothness', 'Normal')</l>
+<c>* &lt;0, 4&gt;</c>
+<l>get_framegrabber_param (AcqHandle, 'NormalsEstimationRadius', normals_estimation_radius)</l>
+<l>set_framegrabber_param (AcqHandle, 'NormalsEstimationRadius', 1)</l>
+<c>* true or false</c>
+<l>get_framegrabber_param (AcqHandle, 'InterreflectionsFiltering', interreflections_filtering)</l>
+<l>set_framegrabber_param (AcqHandle, 'InterreflectionsFiltering', true)</l>
+<c>* &lt;0.01, 0.99&gt;</c>
+<l>get_framegrabber_param (AcqHandle, 'InterreflectionFilterStrength', interreflections_filtering_strength)</l>
+<l>set_framegrabber_param (AcqHandle, 'InterreflectionFilterStrength', 0.50)</l>
+<c>* `Local`, `Small`, `Medium` or `Large`</c>
+<l>get_framegrabber_param (AcqHandle, 'PatternDecompositionReach', pattern_decomposition_reach)</l>
+<l>set_framegrabber_param (AcqHandle, 'PatternDecompositionReach', 'Medium')</l>
+<c>* &lt;0.0, 4095.0&gt;</c>
+<l>get_framegrabber_param (AcqHandle, 'SignalContrastThreshold', signal_contrast_threshold)</l>
+<l>set_framegrabber_param (AcqHandle, 'SignalContrastThreshold', 2000.50)</l>
+<c></c>
+<c></c>
+<c>* --&gt; Coordinates settings</c>
+<c>* `CameraSpace`, `MarkerSpace`, `RobotSpace` or `CustomSpace`</c>
+<l>get_framegrabber_param (AcqHandle, 'CoordinateSpace', camera_space)</l>
+<l>set_framegrabber_param (AcqHandle, 'CoordinateSpace', 'MarkerSpace')</l>
+<c>* `Custom` or `Robot`</c>
+<l>get_framegrabber_param (AcqHandle, 'TransformationSpaceSelector', transformation_space_selector)</l>
+<l>set_framegrabber_param (AcqHandle, 'TransformationSpaceSelector', 'Robot')</l>
+<c>* `Row0Col0`, `Row0Col1`, `Row0Col2`, `Row1Col0`, .. , `Row2Col2`</c>
+<l>get_framegrabber_param (AcqHandle, 'TransformationRotationMatrixSelector', transformation_rotation_matrix_selector)</l>
+<l>set_framegrabber_param (AcqHandle, 'TransformationRotationMatrixSelector', 'Row0Col1')</l>
+<c>* &lt;-999999.0, 999999.0&gt;</c>
+<l>get_framegrabber_param (AcqHandle, 'TransformationRotationMatrixValue', transformation_rotation_matrix_value)</l>
+<l>set_framegrabber_param (AcqHandle, 'TransformationRotationMatrixValue', 150.25)</l>
+<c>* `X`, `Y` or `Z`</c>
+<l>get_framegrabber_param (AcqHandle, 'TransformationTranslationVectorSelector', transformation_translation_vector_selector)</l>
+<l>set_framegrabber_param (AcqHandle, 'TransformationTranslationVectorSelector', 'Z')</l>
+<c>* &lt;-999999.0, 999999.0&gt;</c>
+<l>get_framegrabber_param (AcqHandle, 'TransformationTranslationVectorValue', transformation_translation_vector_value)</l>
+<l>set_framegrabber_param (AcqHandle, 'TransformationTranslationVectorValue', 225.50)</l>
+<c>* true or false</c>
+<l>get_framegrabber_param (AcqHandle, 'RecognizeMarkers', recognize_markers)</l>
+<l>set_framegrabber_param (AcqHandle, 'RecognizeMarkers', true)</l>
+<c>* &lt;-999999.0, 999999.0&gt;</c>
+<l>get_framegrabber_param (AcqHandle, 'MarkerScaleWidth', marker_scale_width)</l>
+<l>set_framegrabber_param (AcqHandle, 'MarkerScaleWidth', 0.50)</l>
+<c>* &lt;-999999.0, 999999.0&gt;</c>
+<l>get_framegrabber_param (AcqHandle, 'MarkerScaleHeight', marker_scale_height)</l>
+<l>set_framegrabber_param (AcqHandle, 'MarkerScaleHeight', 0.50)</l>
+<c></c>
+<c></c>
+<c>* --&gt; Calibration settings</c>
+<c>* `Row0Col0`, `Row0Col1`, `Row0Col2`, `Row1Col0`, .. , `Row2Col2`</c>
+<l>get_framegrabber_param (AcqHandle, 'CameraMatrixSelector', camera_matrix_selector)</l>
+<l>set_framegrabber_param (AcqHandle, 'CameraMatrixSelector', 'Row0Col1')</l>
+<c>* ReadOnly</c>
+<l>get_framegrabber_param (AcqHandle, 'CameraMatrixValue', camera_matrix_value)</l>
+<c>* &lt;0, 13&gt;</c>
+<l>get_framegrabber_param (AcqHandle, 'DistortionCoefficientSelector', distortion_coefficient_selector)</l>
+<l>set_framegrabber_param (AcqHandle, 'DistortionCoefficientSelector', 3)</l>
+<c>* ReadOnly</c>
+<l>get_framegrabber_param (AcqHandle, 'DistortionCoefficientValue', distortion_coefficient_value)</l>
+<l>get_framegrabber_param (AcqHandle, 'FocusLength', focus_length)</l>
+<l>get_framegrabber_param (AcqHandle, 'PixelSizeWidth', pixel_length_width)</l>
+<l>get_framegrabber_param (AcqHandle, 'PixelSizeHeight', pixel_length_height)</l>
+<c></c>
+<c></c>
+<c>* --&gt; FrameOutput settings</c>
+<c>* Enable/Disable transfer of spefific images (true or false)</c>
+<l>set_framegrabber_param (AcqHandle, 'SendPointCloud', true)</l>
+<l>set_framegrabber_param (AcqHandle, 'SendNormalMap', true)</l>
+<l>set_framegrabber_param (AcqHandle, 'SendDepthMap', true)</l>
+<l>set_framegrabber_param (AcqHandle, 'SendConfidenceMap', true)</l>
+<l>set_framegrabber_param (AcqHandle, 'SendTexture', true)</l>
+<c></c>
+<l>close_framegrabber (AcqHandle)</l>
+<c></c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

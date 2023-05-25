@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="21.11.0.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>*</c>
+<c>* -----------</c>
+<c>* INFORMATION</c>
+<c>* -----------</c>
+<c>* In order to list all available devices on the network, call 'info_framegrabber'.</c>
+<c>* Photoneo devices are described as the following:</c>
+<c>* '</c>
+<c>*   | device:48b02d681e5a_Photoneo_MotionCam3DColor</c>
+<c>*   | unique_name:48b02d681e5a_Photoneo_MotionCam3DColor</c>
+<c>*   | interface:Esen_ITF_08002708c6980a06725affff0000</c>
+<c>*   | producer:Esen</c>
+<c>*   | vendor:Photoneo</c>
+<c>*   | model:MotionCam-3D Color</c>
+<c>*   | tl_type:GEV</c>
+<c>*   | device_ip:10.6.118.6/16</c>
+<c>*   | device_sn:TBR-046</c>
+<c>*   | interface_ip:10.6.114.90/16</c>
+<c>*   | status:available</c>
+<c>* '</c>
+<c>*</c>
+<l>info_framegrabber ('GigEVision2', 'info_boards', Information, DeviceList)</l>
+<c></c>
+<c>*</c>
+<c>* ----------</c>
+<c>* CONNECTION</c>
+<c>* ----------</c>
+<c>* Connection requires to input the device's ID. HALCON's GigE Vision acquisition interface</c>
+<c>* does not utilize serial numbers. Therefore one must use different ID which contains</c>
+<c>* the device's MAC address.</c>
+<c>*</c>
+<l>device_id := '&lt;mac-addr&gt;_Photoneo_&lt;device-type&gt;'</l>
+<l>open_framegrabber ('GigEVision2', 0, 0, 0, 0, 0, 0, 'progressive', -1, 'default', -1, 'false', 'default', device_id, 0, -1, acq_handle)</l>
+<c></c>
+<c>*</c>
+<c>* --------</c>
+<c>* FEATURES</c>
+<c>* --------</c>
+<c>* For all available features, values, min/max bounds,.. use Image Acquisition Assistant</c>
+<c>*</c>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'DeviceModelName', device_model_name)</l>
+<l>tuple_regexp_match (device_model_name, 'MotionCam-3D', is_motioncam)</l>
+<l>if (is_motioncam == '')</l>
+<c>    * device is not a MotionCam-3D</c>
+<l>    close_framegrabber (acq_handle)</l>
+<l>    return()</l>
+<l>endif</l>
+<c></c>
+<c>* Capturing settings</c>
+<c>* ------------------</c>
+<l>get_framegrabber_param (acq_handle, 'ShutterMultiplier', shutter_multiplier)</l>
+<l>set_framegrabber_param (acq_handle, 'ShutterMultiplier', 1)</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'ScanMultiplier', scan_multiplier)</l>
+<l>set_framegrabber_param (acq_handle, 'ScanMultiplier', 4)</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'Resolution', resolution)</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'CodingStrategy', coding_strategy)</l>
+<l>set_framegrabber_param (acq_handle, 'CodingStrategy', 'Normal')</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'CodingQuality', coding_quality)</l>
+<l>set_framegrabber_param (acq_handle, 'CodingQuality', 'Ultra')</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'TextureSource', texture_source)</l>
+<l>set_framegrabber_param (acq_handle, 'TextureSource', 'LED')</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'SinglePatternExposure', single_pattern_exposure)</l>
+<l>set_framegrabber_param (acq_handle, 'SinglePatternExposure', 30.72)</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'MaximumFPS', maximum_fps)</l>
+<l>set_framegrabber_param (acq_handle, 'MaximumFPS', 12.5)</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'LaserPower', laser_power)</l>
+<l>set_framegrabber_param (acq_handle, 'LaserPower', 2000)</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'LEDPower', led_power)</l>
+<l>set_framegrabber_param (acq_handle, 'LEDPower', 2000)</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'HardwareTrigger', hardware_trigger)</l>
+<l>set_framegrabber_param (acq_handle, 'HardwareTrigger', true)</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'HardwareTriggerSignal', hardware_trigger_signal)</l>
+<l>set_framegrabber_param (acq_handle, 'HardwareTriggerSignal', 'Both')</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'OperationMode', operation_mode)</l>
+<l>set_framegrabber_param (acq_handle, 'OperationMode', 'Scanner')</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'CameraResolution', camera_resolution)</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'CameraExposure', camera_exposure)</l>
+<l>set_framegrabber_param (acq_handle, 'CameraExposure', 30.72)</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'OutputTopology', output_topology)</l>
+<l>set_framegrabber_param (acq_handle, 'OutputTopology', 'RegularGrid')</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'CameraCodingStrategy', camera_coding_strategy)</l>
+<l>set_framegrabber_param (acq_handle, 'CameraCodingStrategy', 'Normal')</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'CameraTextureSource', camera_texture_source)</l>
+<l>set_framegrabber_param (acq_handle, 'CameraTextureSource', 'LED')</l>
+<c></c>
+<c></c>
+<c>* Processing settings</c>
+<c>* -------------------</c>
+<l>get_framegrabber_param (acq_handle, 'MaxInaccuracy', max_inaccuracy)</l>
+<l>set_framegrabber_param (acq_handle, 'MaxInaccuracy', 3.5)</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'MaxCameraAngle', max_camera_angle)</l>
+<l>set_framegrabber_param (acq_handle, 'MaxCameraAngle', 10)</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'MaxProjectorAngle', max_projector_angle)</l>
+<l>set_framegrabber_param (acq_handle, 'MaxProjectorAngle', 10)</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'MinHalfwayAngle', min_halfway_angle)</l>
+<l>set_framegrabber_param (acq_handle, 'MinHalfwayAngle', 20)</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'MaxHalfwayAngle', max_halfway_angle)</l>
+<l>set_framegrabber_param (acq_handle, 'MaxHalfwayAngle', 25)</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'CalibrationVolumeOnly', calibration_volume_only)</l>
+<l>set_framegrabber_param (acq_handle, 'CalibrationVolumeOnly', true)</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'SurfaceSmoothness', surface_smoothness)</l>
+<l>set_framegrabber_param (acq_handle, 'SurfaceSmoothness', 'Normal')</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'NormalsEstimationRadius', normals_estimation_radius)</l>
+<l>set_framegrabber_param (acq_handle, 'NormalsEstimationRadius', 1)</l>
+<c></c>
+<c></c>
+<c>* Coordinates settings</c>
+<c>* --------------------</c>
+<l>get_framegrabber_param (acq_handle, 'CoordinateSpace', camera_space)</l>
+<l>set_framegrabber_param (acq_handle, 'CoordinateSpace', 'MarkerSpace')</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'RecognizeMarkers', recognize_markers)</l>
+<l>set_framegrabber_param (acq_handle, 'RecognizeMarkers', true)</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'MarkerScaleWidth', marker_scale_width)</l>
+<l>set_framegrabber_param (acq_handle, 'MarkerScaleWidth', 0.50)</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'MarkerScaleHeight', marker_scale_height)</l>
+<l>set_framegrabber_param (acq_handle, 'MarkerScaleHeight', 0.50)</l>
+<c></c>
+<c></c>
+<c>* Calibration settings</c>
+<c>* --------------------</c>
+<l>get_framegrabber_param (acq_handle, 'FocusLength', focus_length)</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'PixelSizeWidth', pixel_length_width)</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'PixelSizeHeight', pixel_length_height)</l>
+<c></c>
+<c></c>
+<l>tuple_regexp_match (device_model_name, 'Color', is_colordevice)</l>
+<l>if (is_colordevice != '')</l>
+<l>    get_framegrabber_param (acq_handle, 'ColorSettings_ISO', color_settings_iso)</l>
+<l>    set_framegrabber_param (acq_handle, 'ColorSettings_ISO', 200)</l>
+<c></c>
+<l>    get_framegrabber_param (acq_handle, 'ColorSettings_Exposure', color_settings_exposure)</l>
+<l>    set_framegrabber_param (acq_handle, 'ColorSettings_Exposure', 30.72)</l>
+<c></c>
+<l>    get_framegrabber_param (acq_handle, 'ColorSettings_Exposure', color_settings_exposure)</l>
+<l>    set_framegrabber_param (acq_handle, 'ColorSettings_Exposure', 30.72)</l>
+<c></c>
+<l>    get_framegrabber_param (acq_handle, 'ColorSettings_ResolutionWidth', color_settings_resolution_width)</l>
+<c></c>
+<l>    get_framegrabber_param (acq_handle, 'ColorSettings_ResolutionHeight', color_settings_resolution_height)</l>
+<c></c>
+<l>    get_framegrabber_param (acq_handle, 'ColorSettings_Gamma', color_settings_gamma)</l>
+<l>    set_framegrabber_param (acq_handle, 'ColorSettings_Gamma', 2.5)</l>
+<c></c>
+<l>    get_framegrabber_param (acq_handle, 'ColorSettings_WhiteBalanceEnabled', color_settings_white_balance_enabled)</l>
+<l>    set_framegrabber_param (acq_handle, 'ColorSettings_WhiteBalanceEnabled', 1)</l>
+<c></c>
+<l>    get_framegrabber_param (acq_handle, 'ColorSettings_WhiteBalancePreset', color_settings_white_balance_preset)</l>
+<l>    set_framegrabber_param (acq_handle, 'ColorSettings_WhiteBalancePreset', 'Internal LED (5000 - 5500K)')</l>
+<c></c>
+<l>    get_framegrabber_param (acq_handle, 'ColorSettings_WhiteBalanceR', color_settings_white_balance_r)</l>
+<l>    set_framegrabber_param (acq_handle, 'ColorSettings_WhiteBalanceR', 0.7)</l>
+<c></c>
+<l>    get_framegrabber_param (acq_handle, 'ColorSettings_WhiteBalanceG', color_settings_white_balance_g)</l>
+<l>    set_framegrabber_param (acq_handle, 'ColorSettings_WhiteBalanceG', 0.6)</l>
+<c></c>
+<l>    get_framegrabber_param (acq_handle, 'ColorSettings_WhiteBalanceB', color_settings_white_balance_b)</l>
+<l>    set_framegrabber_param (acq_handle, 'ColorSettings_WhiteBalanceB', 0.5)</l>
+<c></c>
+<l>    get_framegrabber_param (acq_handle, 'ColorSettings_ComputeCustomWhiteBalance', color_settings_compute_custom_white_balance)</l>
+<l>    set_framegrabber_param (acq_handle, 'ColorSettings_ComputeCustomWhiteBalance', 1)</l>
+<c></c>
+<l>    get_framegrabber_param (acq_handle, 'ColorSettings_Resolution', color_settings_resolution)</l>
+<l>    set_framegrabber_param (acq_handle, 'ColorSettings_Resolution', 'Resolution_1932x1096')</l>
+<c></c>
+<l>    get_framegrabber_param (acq_handle, 'ColorCalibration_FocusLength', color_calibration_focus_length)</l>
+<c></c>
+<l>    get_framegrabber_param (acq_handle, 'ColorCalibration_PixelSizeWidth', color_calibration_pixel_length_width)</l>
+<c></c>
+<l>    get_framegrabber_param (acq_handle, 'ColorCalibration_PixelSizeHeight', color_calibration_pixel_length_height)</l>
+<l>endif</l>
+<c></c>
+<l>close_framegrabber (acq_handle)</l>
+<c></c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>
