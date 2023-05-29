@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="22.11.0.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* -----------</c>
+<c>* INFORMATION</c>
+<c>* -----------</c>
+<c>* In order to list all available devices on the network, call 'info_framegrabber'.</c>
+<c>* Photoneo devices are described as the following:</c>
+<c>* '</c>
+<c>*   | device:48b02d681e5a_Photoneo_MotionCam3DColor</c>
+<c>*   | unique_name:48b02d681e5a_Photoneo_MotionCam3DColor</c>
+<c>*   | interface:Esen_ITF_08002708c6980a06725affff0000</c>
+<c>*   | producer:Esen</c>
+<c>*   | vendor:Photoneo</c>
+<c>*   | model:MotionCam-3D Color</c>
+<c>*   | tl_type:GEV</c>
+<c>*   | device_ip:10.6.118.6/16</c>
+<c>*   | device_sn:TBR-046</c>
+<c>*   | interface_ip:10.6.114.90/16</c>
+<c>*   | status:available</c>
+<c>* '</c>
+<c>*</c>
+<l>info_framegrabber ('GigEVision2', 'info_boards', Information, device_list)</l>
+<c></c>
+<c>*</c>
+<c>* ----------</c>
+<c>* CONNECTION</c>
+<c>* ----------</c>
+<c>* Connection requires to input the device's ID. HALCON's GigE Vision acquisition interface</c>
+<c>* does not utilize serial numbers. Therefore one must use different ID which contains</c>
+<c>* the device's MAC address.</c>
+<c>*</c>
+<l>device_id := '&lt;mac-addr&gt;_Photoneo_&lt;device-type&gt;'</l>
+<l>open_framegrabber ('GigEVision2', 0, 0, 0, 0, 0, 0, 'progressive', -1, 'default', -1, 'false', 'default', device_id, 0, -1, acq_handle)</l>
+<c></c>
+<c>*</c>
+<c>* ----------</c>
+<c>* COMPONENTS</c>
+<c>* ----------</c>
+<c>* For detailed information about supported components see C++ examples:</c>
+<c>* https://github.com/photoneo-3d/photoneo-cpp-examples/tree/main/GigEV</c>
+<c>* or PhoXi Control manual for actual code samples.</c>
+<c>*</c>
+<c></c>
+<c>* 'MultiPart' payload format is recommended, because chunk data are not handled correctly by HALCON.</c>
+<l>set_framegrabber_param (acq_handle, 'TestPayloadFormatMode', 'MultiPart')</l>
+<c></c>
+<c>* Photoneo devices provide multiple components</c>
+<c>* -&gt; Intensity</c>
+<c>* -&gt; Range</c>
+<c>* -&gt; Confidence</c>
+<c>* -&gt; Normal</c>
+<c>* -&gt; Event (MotionCam-3D exclusive)</c>
+<c>* -&gt; ColorCamera (MotionCam-3D Color exclusive)</c>
+<c>* -&gt; Reprojection</c>
+<c></c>
+<c>* In order to enable or disable a component,</c>
+<c>* 'ComponenSelector' and 'ComponenEnable' features are required.</c>
+<c>* In this example ColorCamera image will be converted from default</c>
+<c>* YCoCg format into RGB.</c>
+<c>* Details about the conversion can be found at</c>
+<c>* https://github.com/photoneo-3d/photoneo-cpp-examples/blob/main/GigEV/aravis/common/YCoCg.h</c>
+<c></c>
+<c>* The 2x2 plaquette of the YCoCg format consists of:</c>
+<c>*   (0, 0): Y (10 bits), 1st half of Co (6 bits)</c>
+<c>*   (1, 0): Y (10 bits), 2nd half of Co (6 bits)</c>
+<c>*   (0, 1): Y (10 bits), 1st half of Cg (6 bits)</c>
+<c>*   (1, 1): Y (10 bits), 2nd half of Cg (6 bits)</c>
+<c></c>
+<l>set_framegrabber_param (acq_handle, 'ComponentSelector', 'Intensity')</l>
+<l>set_framegrabber_param (acq_handle, 'ComponentEnable', true)</l>
+<l>set_framegrabber_param (acq_handle, 'ComponentSelector', 'Range')</l>
+<l>set_framegrabber_param (acq_handle, 'ComponentEnable', false)</l>
+<l>set_framegrabber_param (acq_handle, 'ComponentSelector', 'Confidence')</l>
+<l>set_framegrabber_param (acq_handle, 'ComponentEnable', false)</l>
+<l>set_framegrabber_param (acq_handle, 'ComponentSelector', 'Normal')</l>
+<l>set_framegrabber_param (acq_handle, 'ComponentEnable', false)</l>
+<l>set_framegrabber_param (acq_handle, 'ComponentSelector', 'Event')</l>
+<l>set_framegrabber_param (acq_handle, 'ComponentEnable', false)</l>
+<l>set_framegrabber_param (acq_handle, 'ComponentSelector', 'ColorCamera')</l>
+<l>set_framegrabber_param (acq_handle, 'ComponentEnable', true)</l>
+<l>set_framegrabber_param (acq_handle, 'ComponentSelector', 'Reprojection')</l>
+<l>set_framegrabber_param (acq_handle, 'ComponentEnable', false)</l>
+<c></c>
+<c>* Adjust default timeout depending on payload size and network speed</c>
+<l>set_framegrabber_param (acq_handle, 'grab_timeout', 5000)</l>
+<c></c>
+<c>*</c>
+<c>* -----------</c>
+<c>* ACQUISITION</c>
+<c>* -----------</c>
+<c>* Currently only 'Continuous' acquisition mode and 'FrameStart' trigger selector is supported.</c>
+<c>* Examples for Freerun and Software trigger modes can be found below.</c>
+<c>*</c>
+<l>set_framegrabber_param (acq_handle, 'AcquisitionMode', 'Continuous')</l>
+<l>set_framegrabber_param (acq_handle, 'TriggerSelector', 'FrameStart')</l>
+<c></c>
+<c>* Freerun</c>
+<c>* -------</c>
+<l>set_framegrabber_param (acq_handle, 'TriggerMode', 'Off')</l>
+<c></c>
+<l>for Index := 1 to 5 by 1</l>
+<c>    * Retrieve only image (Intensity component must be enabled)</c>
+<l>    grab_image (image, acq_handle)</l>
+<c>    * do something with image...</c>
+<c></c>
+<c>    * Rerieve every component enabled</c>
+<l>    grab_data (payload, region, countours, acq_handle, data)</l>
+<l>    select_obj (payload, intensity, 1)</l>
+<l>    convert_image_type (intensity, intensity_real, 'real')</l>
+<c></c>
+<l>    select_obj (payload, color_camera, 2)</l>
+<l>    get_image_size (color_camera, width, height)  </l>
+<c></c>
+<c>    * const uint16_t pixelDepth = 10;</c>
+<l>    shift_uint2 := 16</l>
+<c>    * const uint16_t delta = (1 &lt;&lt; (pixelDepth - 1));</c>
+<l>    delta := 512</l>
+<c>    * const int yShift = std::numeric_limits&lt;uint16_t&gt;::digits - pixelDepth;</c>
+<l>    shift_y := shift_uint2 - 10</l>
+<c>    * const uint16_t mask = static_cast&lt;uint16_t&gt;((1 &lt;&lt; yShift) - 1);</c>
+<c>    * -&gt; 63</c>
+<l>    mask := 0x3f    </l>
+<c></c>
+<c>    * Component Y of YCoCg</c>
+<c>    * --------------------</c>
+<c>    * Get first 10 bits of every pixel -&gt; bit shift right by 6 </c>
+<l>    copy_image (color_camera, comp_y) </l>
+<l>    bit_rshift (comp_y, comp_y, shift_y)</l>
+<c></c>
+<c>    * Component CoCg of YCoCg</c>
+<c>    * -----------------------</c>
+<c>    * Concatinate last 6 bits of 2 neighbouring pixels</c>
+<l>    get_image_pointer1 (color_camera, color_camera_ptr, color_camera_type, color_camera_width, color_camera_height)</l>
+<l>    gen_image1 (color_camera_int4, 'int4', color_camera_width/2, color_camera_height, color_camera_ptr)</l>
+<c></c>
+<l>    bit_mask (color_camera_int4, comp_co_cg_a, mask)</l>
+<l>    bit_lshift (comp_co_cg_a, comp_co_cg_a, shift_y)</l>
+<c></c>
+<l>    bit_rshift (color_camera_int4, color_camera_int4, shift_uint2)</l>
+<l>    bit_mask (color_camera_int4, comp_co_cg_b, mask)</l>
+<c></c>
+<l>    bit_or (comp_co_cg_a, comp_co_cg_b, comp_co_cg_int4)</l>
+<l>    copy_image (comp_co_cg_int4, comp_co_cg_int4_copy)</l>
+<l>    bit_lshift (comp_co_cg_int4_copy, comp_co_cg_int4_copy, shift_uint2)</l>
+<l>    bit_or (comp_co_cg_int4, comp_co_cg_int4_copy, comp_co_cg_int4)</l>
+<c></c>
+<l>    get_image_pointer1 (comp_co_cg_int4, comp_co_cg_int4_ptr, comp_co_cg_int4_type, comp_co_cg_int4_width, comp_co_cg_int4_height)</l>
+<l>    gen_image1 (comp_co_cg, 'uint2', color_camera_width, color_camera_height, comp_co_cg_int4_ptr)</l>
+<c></c>
+<c>    * Component Co of YCoCg</c>
+<c>    * ---------------------</c>
+<c>    * Replace odd rows with its neighbor row</c>
+<l>    zoom_image_size (comp_co_cg, comp_co, color_camera_width, color_camera_height/2, 'nearest_neighbor')</l>
+<l>    zoom_image_size (comp_co, comp_co, color_camera_width, color_camera_height, 'nearest_neighbor')    </l>
+<c>    </c>
+<c>    * Component Co of YCoCg</c>
+<c>    * ---------------------</c>
+<c>    * Replace even rows with its neighbor row</c>
+<l>    crop_rectangle1 (comp_co_cg, comp_cg_co, 1, 0, color_camera_height-1, color_camera_width-1)</l>
+<l>    change_format (comp_cg_co, comp_cg_co, color_camera_width, color_camera_height)</l>
+<c></c>
+<l>    zoom_image_size (comp_cg_co, comp_cg, color_camera_width, color_camera_height/2, 'nearest_neighbor')</l>
+<l>    zoom_image_size (comp_cg, comp_cg, color_camera_width, color_camera_height, 'nearest_neighbor')    </l>
+<c></c>
+<l>    gen_image_const (only_zeros, 'uint2', color_camera_width, color_camera_height)</l>
+<l>    gen_image_proto (only_zeros, only_ones, 1)</l>
+<c></c>
+<c>    * Recreate RGB image using Y, Co, Cg channels</c>
+<c>    * -------------------------------------------</c>
+<c>    * r = ((2 * y + co) - cg) / 2    </c>
+<l>    mult_image (comp_y, only_ones, helper_comp_2y, 2, 0)</l>
+<l>    add_image (helper_comp_2y, comp_co, helper_comp_2y_co, 1, 0)</l>
+<l>    sub_image (helper_comp_2y_co, comp_cg, color_image_r, 0.5, 0)</l>
+<c></c>
+<c>    * g = (y + cg / 2) - delta</c>
+<l>    mult_image (comp_cg, only_ones, helper_comp_cg_05, 0.5, 0)</l>
+<l>    add_image (comp_y, helper_comp_cg_05, color_image_g, 1, -delta)</l>
+<c></c>
+<c>    * b = (y + 2 * delta) - (co + cg) / 2</c>
+<l>    mult_image (comp_y, only_ones, helper_comp_y_05_delta, 1, 2 * delta)</l>
+<l>    add_image (comp_co, comp_cg, helper_comp_co_cg, 0.5, 0)</l>
+<l>    sub_image (helper_comp_y_05_delta, helper_comp_co_cg, color_image_b, 1, 0)</l>
+<c></c>
+<l>    compose3 (color_image_r, color_image_g, color_image_b, color_image_rgb)</l>
+<l>endfor</l>
+<c></c>
+<l>close_framegrabber (acq_handle)</l>
+<c></c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>
