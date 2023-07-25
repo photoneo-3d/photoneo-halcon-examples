@@ -3,7 +3,7 @@
 
 #### Prerequisites
 
-[MVTec HALCON 21.11.0.0](https://www.mvtec.com/products/halcon)
+[MVTec HALCON 21.11.0.0](https://www.mvtec.com/products/halcon) <br />
 
 ![image](https://www.photoneo.com/wp-content/uploads/2018/09/halcon.png)
 
