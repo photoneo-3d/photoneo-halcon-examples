@@ -4,6 +4,7 @@
 #### Prerequisites
 
 [MVTec HALCON 21.11.0.0](https://www.mvtec.com/products/halcon)
+![image](https://www.photoneo.com/wp-content/uploads/2018/09/halcon.png)
 
 ## Introduction
 This repository provides the building blocks necessary for developing your custom MVTec HALCON application for working with [Photoneo](https://www.photoneo.com/) devices. 
