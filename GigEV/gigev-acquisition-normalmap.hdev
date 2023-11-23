@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<hdevelop file_version="1.2" halcon_version="22.11.0.0">
+<hdevelop file_version="1.2" halcon_version="23.11.0.0">
 <procedure name="main">
 <interface/>
 <body>
@@ -112,33 +112,19 @@
 <l>    select_obj (payload, intensity, 1)</l>
 <l>    convert_image_type (image, image_real, 'real')</l>
 <c></c>
-<l>    select_obj (payload, normal_raw, 2)</l>
-<c>    * Note: Unfortunately, HALCON does not support `Coord3D_AC8` pixel format.</c>
-<c>    * Hence the warning: Unknown or unsupported pixel format 021000b4</c>
-<c>    * can only be converted to HALCON 'raw' images. (CreateHalconImage:15017)</c>
-<c></c>
-<c>    * Converting Raw bytes image with resolution RawSize x RawSize</c>
-<c>    * RawData (1B each): θ0, φ0, θ1, φ1, θ2, φ2, θ3, φ3, θ4, φ4, ...</c>
-<c>    * into 2 real images with resolution Height x Width</c>
 <c>    * Theta (AngleXZ): θ0, θ1, θ2, θ3, θ4, ...</c>
-<c>    * Phi (AngleZ): φ0, φ1, φ2, φ3, φ4, ...</c>
+<l>    select_obj (payload, normal_theta, 2)</l>
+<l>    convert_image_type (normal_theta, normal_theta_real, 'real')</l>
 <c></c>
-<l>    get_image_size (intensity, width, height)</l>
-<l>    get_image_pointer1 (normal_raw, normal_raw_ptr, raw_type, width_raw, height_raw)</l>
-<l>    gen_image1 (normals_uint16, 'uint2', width, height, normal_raw_ptr)</l>
-<c></c>
-<c>    * Low 8bits (Theta)</c>
-<l>    bit_mask (normals_uint16, theta, 0xff)</l>
-<l>    convert_image_type (theta, theta, 'real')</l>
-<c>    * Shift to get the High 8bits (phi)</c>
-<l>    bit_rshift (normals_uint16, phi, 8)</l>
-<l>    convert_image_type (phi, phi, 'real')</l>
+<c>     * Phi (AngleZ): φ0, φ1, φ2, φ3, φ4, ...</c>
+<l>    select_obj (payload, normal_phi, 3)</l>
+<l>    convert_image_type (normal_phi, normal_phi_real, 'real')</l>
 <c></c>
 <l>    Pi := 3.14159265359</l>
-<l>    gen_image_proto (phi, only_ones, 1)     </l>
+<l>    gen_image_proto (normal_phi_real, only_ones, 1)</l>
 <c></c>
-<l>    mult_image (phi, only_ones, phi_rad, Pi/256, 0)</l>
-<l>    mult_image (theta, only_ones, theta_rad, Pi/128, 0)</l>
+<l>    mult_image (normal_phi_real, only_ones, phi_rad, Pi/256, 0)</l>
+<l>    mult_image (normal_theta_real, only_ones, theta_rad, Pi/128, 0)</l>
 <c></c>
 <l>    sin_image (phi_rad, phi_rad_Sin)</l>
 <l>    cos_image (phi_rad, phi_rad_cos)</l>
