@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="23.11.0.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>*</c>
+<c>* In order to list all available devices on the network, call 'info_framegrabber'.</c>
+<c>* Photoneo devices are described as the following:</c>
+<c>* '</c>
+<c>*   | device:48b02d681e5a_Photoneo_MotionCam3DColor</c>
+<c>*   | unique_name:48b02d681e5a_Photoneo_MotionCam3DColor</c>
+<c>*   | interface:Esen_ITF_08002708c6980a06725affff0000</c>
+<c>*   | producer:Esen</c>
+<c>*   | vendor:Photoneo</c>
+<c>*   | model:MotionCam-3D Color</c>
+<c>*   | tl_type:GEV</c>
+<c>*   | device_ip:10.6.118.6/16</c>
+<c>*   | device_sn:TBR-046</c>
+<c>*   | interface_ip:10.6.114.90/16</c>
+<c>*   | status:available</c>
+<c>* '</c>
+<c>*</c>
+<l>info_framegrabber ('GigEVision2', 'info_boards', Information, device_list)</l>
+<c></c>
+<c>*</c>
+<c>* Connection requires to input the device's ID. HALCON's GigE Vision acquisition interface</c>
+<c>* does not utilize serial numbers. Therefore one must use different ID which contains</c>
+<c>* the device's MAC address or use `DeviceUserID` if set.</c>
+<c>*</c>
+<l>device_id := '&lt;mac-addr&gt;_Photoneo_&lt;device-type&gt;'</l>
+<l>open_framegrabber ('GigEVision2', 0, 0, 0, 0, 0, 0, 'progressive', -1, 'default', -1, 'false', 'default', device_id, 0, -1, acq_handle)</l>
+<c></c>
+<c>* Apply `Default` settings.</c>
+<l>set_framegrabber_param (acq_handle, 'UserSetSelector', 'Default')</l>
+<l>set_framegrabber_param (acq_handle, 'UserSetLoad', 1)</l>
+<c></c>
+<c>* HALCON sets packet size according MTU of the hosts network interface.</c>
+<c>* This causes issues with gvsp. Need to call negotiation function explicitly.</c>
+<l>get_framegrabber_param (acq_handle, 'GevSCPSPacketSize', packet_size_before)</l>
+<l>set_framegrabber_param (acq_handle, '[Stream]DeviceStreamChannelNegotiatePacketSize', 1)</l>
+<l>get_framegrabber_param (acq_handle, 'GevSCPSPacketSize', packet_size_after)</l>
+<c></c>
+<c>* 'MultiPart' payload format is recommended.</c>
+<l>set_framegrabber_param (acq_handle, 'TestPayloadFormatMode', 'MultiPart')</l>
+<c></c>
+<c>* Set output mode for Range component.</c>
+<l>set_framegrabber_param (acq_handle, 'Scan3dOutputMode', 'ProjectedC')</l>
+<c></c>
+<c>* Select freerun.</c>
+<l>set_framegrabber_param (acq_handle, 'AcquisitionMode', 'Continuous')</l>
+<l>set_framegrabber_param (acq_handle, 'TriggerSelector', 'FrameStart')</l>
+<l>set_framegrabber_param (acq_handle, 'TriggerMode', 'Off')</l>
+<c></c>
+<c>* Adjust default timeout depending on payload size and network speed.</c>
+<l>set_framegrabber_param (acq_handle, 'grab_timeout', 5000)</l>
+<c></c>
+<c>* Pre-fetch Coordinate Map A and B (used for reconstructing the point cloud).</c>
+<l>set_framegrabber_param (acq_handle, 'ComponentSelector', 'CoordinateMapA')</l>
+<l>set_framegrabber_param (acq_handle, 'ComponentEnable', true)</l>
+<l>set_framegrabber_param (acq_handle, 'ComponentSelector', 'CoordinateMapB')</l>
+<l>set_framegrabber_param (acq_handle, 'ComponentEnable', true)</l>
+<c></c>
+<l>grab_data (payload, region, countours, acq_handle, data)</l>
+<l>select_obj (payload, intensity, 1)</l>
+<l>* select_obj (payload, range, 2)</l>
+<l>select_obj (payload, coordinate_map_a, 3)</l>
+<l>select_obj (payload, coordinate_map_b, 4)</l>
+<c></c>
+<c>* Note: Unfortunately, HALCON does not recognize `Coord3D_A32f` &amp; `Coord3D_B32f` pixel format.</c>
+<c>* Hence the wrong resolution.</c>
+<l>get_image_size (intensity, width, height)</l>
+<l>get_image_pointer1 (coordinate_map_a, coordinate_map_a_ptr, Type, width_raw, height_raw)</l>
+<l>gen_image1 (coordinate_map_a_corrected, 'real', width, height, coordinate_map_a_ptr)</l>
+<l>get_image_pointer1 (coordinate_map_b, coordinate_map_b_ptr, Type, width_raw, height_raw)</l>
+<l>gen_image1 (coordinate_map_b_corrected, 'real', width, height, coordinate_map_b_ptr)</l>
+<c></c>
+<l>set_framegrabber_param (acq_handle, 'ComponentSelector', 'CoordinateMapA')</l>
+<l>set_framegrabber_param (acq_handle, 'ComponentEnable', false)</l>
+<l>set_framegrabber_param (acq_handle, 'ComponentSelector', 'CoordinateMapB')</l>
+<l>set_framegrabber_param (acq_handle, 'ComponentEnable', false)</l>
+<c></c>
+<c>* Enable Range component.</c>
+<l>set_framegrabber_param (acq_handle, 'ComponentSelector', 'Range')</l>
+<l>set_framegrabber_param (acq_handle, 'ComponentEnable', true)</l>
+<c></c>
+<c>* Retrieve needed parameters for point cloud reconstruction.</c>
+<l>get_framegrabber_param (acq_handle, 'Scan3dFocalLength', focal_length)</l>
+<l>get_framegrabber_param (acq_handle, 'Scan3dAspectRatio', aspect_ratio)</l>
+<l>get_framegrabber_param (acq_handle, 'Scan3dPrincipalPointU', principal_point_u)</l>
+<l>get_framegrabber_param (acq_handle, 'Scan3dPrincipalPointV', principal_point_v)</l>
+<c></c>
+<c>* Process Coordinate Map A and B.</c>
+<l>gen_image_proto (intensity, only_ones, 1)</l>
+<l>convert_image_type (only_ones, only_ones, 'real')</l>
+<c>* A -&gt; (coordinate_map_a - principal_point_u) / focal_length</c>
+<l>mult_image (coordinate_map_a_corrected, only_ones, processed_coordinate_map_a, 1, -principal_point_u)</l>
+<l>mult_image (processed_coordinate_map_a, only_ones, processed_coordinate_map_a, 1/focal_length, 0)</l>
+<c>* B -&gt; (coordinate_map_b - principal_point_v) / (focal_length * aspect_ratio)</c>
+<l>mult_image (coordinate_map_b_corrected, only_ones, processed_coordinate_map_b, 1, -principal_point_v)</l>
+<l>mult_image (processed_coordinate_map_b, only_ones, processed_coordinate_map_b, 1/(focal_length*aspect_ratio), 0)</l>
+<c></c>
+<l>for Index := 1 to 5 by 1</l>
+<l>    grab_data (payload, region, countours, acq_handle, data)</l>
+<l>    select_obj (payload, intensity, 1)</l>
+<l>    select_obj (payload, range, 2)</l>
+<c></c>
+<l>    mult_image (range, processed_coordinate_map_a, pointcloud_x, 1, 0)</l>
+<l>    mult_image (range, processed_coordinate_map_b, pointcloud_y, 1, 0)</l>
+<l>    copy_image (range, pointcloud_z)</l>
+<c></c>
+<c>    * Create 3D object model and set points.</c>
+<l>    xyz_to_object_model_3d (pointcloud_x, pointcloud_y, pointcloud_z, object_model_3d)</l>
+<c></c>
+<l>    decompose3 (intensity, intensity_red, intensity_green, intensity_blue)</l>
+<l>    rgb3_to_gray (intensity_red, intensity_green, intensity_blue, intensity_gray)</l>
+<l>    get_region_points (intensity_gray, rows, columns)</l>
+<l>    get_grayval (intensity_gray, rows, columns, intensity_values)</l>
+<l>    set_object_model_3d_attrib_mod (object_model_3d, '&amp;intensity', 'points', intensity_values)</l>
+<c></c>
+<c>    * Visualize the point cloud.</c>
+<l>    dev_close_window ()</l>
+<l>    dev_open_window (0, 0, 512, 512, 'black', window_handle)</l>
+<l>    Instructions[0] := 'Rotate: Left button'</l>
+<l>    Instructions[1] := 'Zoom: Shift + left button'</l>
+<l>    Instructions[2] := 'Move: Ctrl + left button'</l>
+<l>    visualize_object_model_3d (window_handle, object_model_3d, [], [], ['intensity'], ['&amp;intensity'], [], [], [Instructions], pose_out)</l>
+<c></c>
+<l>    clear_object_model_3d (object_model_3d)</l>
+<l>endfor</l>
+<c></c>
+<l>close_framegrabber (acq_handle)</l>
+<c></c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

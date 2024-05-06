@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="23.11.0.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>*</c>
+<c>* In order to list all available devices on the network, call 'info_framegrabber'.</c>
+<c>* Photoneo devices are described as the following:</c>
+<c>* '</c>
+<c>*   | device:48b02d681e5a_Photoneo_MotionCam3DColor</c>
+<c>*   | unique_name:48b02d681e5a_Photoneo_MotionCam3DColor</c>
+<c>*   | interface:Esen_ITF_08002708c6980a06725affff0000</c>
+<c>*   | producer:Esen</c>
+<c>*   | vendor:Photoneo</c>
+<c>*   | model:MotionCam-3D Color</c>
+<c>*   | tl_type:GEV</c>
+<c>*   | device_ip:10.6.118.6/16</c>
+<c>*   | device_sn:TBR-046</c>
+<c>*   | interface_ip:10.6.114.90/16</c>
+<c>*   | status:available</c>
+<c>* '</c>
+<c>*</c>
+<l>info_framegrabber ('GigEVision2', 'info_boards', Information, device_list)</l>
+<c></c>
+<c>*</c>
+<c>* Connection requires to input the device's ID. HALCON's GigE Vision acquisition interface</c>
+<c>* does not utilize serial numbers. Therefore one must use different ID which contains</c>
+<c>* the device's MAC address or use `DeviceUserID` if set.</c>
+<c>*</c>
+<l>device_id := '&lt;mac-addr&gt;_Photoneo_&lt;device-type&gt;'</l>
+<l>open_framegrabber ('GigEVision2', 0, 0, 0, 0, 0, 0, 'progressive', -1, 'default', -1, 'false', 'default', device_id, 0, -1, acq_handle)</l>
+<c></c>
+<c>* Apply `Default` settings.</c>
+<l>set_framegrabber_param (acq_handle, 'UserSetSelector', 'Default')</l>
+<l>set_framegrabber_param (acq_handle, 'UserSetLoad', 1)</l>
+<c></c>
+<c>* HALCON sets packet size according MTU of the hosts network interface.</c>
+<c>* This causes issues with gvsp. Need to call negotiation function explicitly.</c>
+<l>get_framegrabber_param (acq_handle, 'GevSCPSPacketSize', packet_size_before)</l>
+<l>set_framegrabber_param (acq_handle, '[Stream]DeviceStreamChannelNegotiatePacketSize', 1)</l>
+<l>get_framegrabber_param (acq_handle, 'GevSCPSPacketSize', packet_size_after)</l>
+<c></c>
+<c>* 'MultiPart' payload format is recommended.</c>
+<l>set_framegrabber_param (acq_handle, 'TestPayloadFormatMode', 'MultiPart')</l>
+<c></c>
+<c>* Adjust default timeout depending on payload size and network speed.</c>
+<l>set_framegrabber_param (acq_handle, 'grab_timeout', 5000)</l>
+<c></c>
+<c>* Select freerun.</c>
+<l>set_framegrabber_param (acq_handle, 'AcquisitionMode', 'Continuous')</l>
+<l>set_framegrabber_param (acq_handle, 'TriggerSelector', 'FrameStart')</l>
+<l>set_framegrabber_param (acq_handle, 'TriggerMode', 'Off')</l>
+<c></c>
+<c>* Retrieve 2D images according to device.</c>
+<l>get_framegrabber_param (acq_handle, 'IsAlphaScanner_Val', is_alpha_scanner)</l>
+<l>if (is_alpha_scanner)</l>
+<l>    set_framegrabber_param (acq_handle, 'TextureSource', 'LED')</l>
+<l>    set_framegrabber_param (acq_handle, 'ComponentSelector', 'Intensity')</l>
+<l>    set_framegrabber_param (acq_handle, 'PixelFormat', 'Mono10')</l>
+<c></c>
+<l>    grab_image (alpha_intensity_led_mono10, acq_handle)</l>
+<l>endif</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'IsPhoXi3DScanner_Val', is_phoxi3d_scanner)</l>
+<l>if (is_phoxi3d_scanner)</l>
+<l>    set_framegrabber_param (acq_handle, 'TextureSource', 'LED')</l>
+<l>    set_framegrabber_param (acq_handle, 'ComponentSelector', 'Intensity')</l>
+<l>    set_framegrabber_param (acq_handle, 'PixelFormat', 'Mono12')</l>
+<c></c>
+<l>    grab_image (phoxi3d_intensity_led_mono12, acq_handle)</l>
+<l>endif</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'IsMotionCam3D_Val', is_motioncam)</l>
+<l>if (is_motioncam)</l>
+<l>    set_framegrabber_param (acq_handle, 'CameraTextureSource', 'LED')</l>
+<l>    set_framegrabber_param (acq_handle, 'ComponentSelector', 'Intensity')</l>
+<l>    set_framegrabber_param (acq_handle, 'PixelFormat', 'Mono10')</l>
+<c></c>
+<l>    grab_image (motioncam_intensity_led_mono10, acq_handle)</l>
+<l>endif</l>
+<c></c>
+<l>get_framegrabber_param (acq_handle, 'IsMotionCam3DColor_Val', is_motioncam_color)</l>
+<l>if (is_motioncam_color)</l>
+<l>    set_framegrabber_param (acq_handle, 'CameraTextureSource', 'Color')</l>
+<l>    set_framegrabber_param (acq_handle, 'ComponentSelector', 'Intensity')</l>
+<l>    set_framegrabber_param (acq_handle, 'PixelFormat', 'RGB8')</l>
+<c></c>
+<l>    grab_image (motioncam_intensity_color_rgb8, acq_handle)</l>
+<c></c>
+<c>    * color camera image as intensity (Intensity component)</c>
+<l>    set_framegrabber_param (acq_handle, 'CameraTextureSource', 'Color')</l>
+<l>    set_framegrabber_param (acq_handle, 'CameraSpace', 'ColorCamera')</l>
+<l>    set_framegrabber_param (acq_handle, 'ComponentSelector', 'Intensity')</l>
+<l>    set_framegrabber_param (acq_handle, 'PixelFormat', 'RGB8')</l>
+<l>    set_framegrabber_param (acq_handle, 'CameraSpace', 'ColorCamera')</l>
+<c></c>
+<l>    grab_image (motioncam_intensity_cameraspace_color_rgb8, acq_handle)</l>
+<c></c>
+<c>    * color camera image as RGB8 (ColorCamera component)</c>
+<l>    set_framegrabber_param (acq_handle, 'CameraTextureSource', 'Color')</l>
+<l>    set_framegrabber_param (acq_handle, 'ComponentSelector', 'ColorCamera')</l>
+<l>    set_framegrabber_param (acq_handle, 'ComponentEnable', true)</l>
+<l>    set_framegrabber_param (acq_handle, 'PixelFormat', 'RGB8')</l>
+<c></c>
+<l>    grab_data (payload, region, countours, acq_handle, data)</l>
+<l>    select_obj (payload, motioncam_colorcamera_rgb8, 5)</l>
+<c></c>
+<c>    * color camera image as Mono16 (ColorCamera component)</c>
+<l>    set_framegrabber_param (acq_handle, 'CameraTextureSource', 'Color')</l>
+<l>    set_framegrabber_param (acq_handle, 'ComponentSelector', 'ColorCamera')</l>
+<l>    set_framegrabber_param (acq_handle, 'ComponentEnable', true)</l>
+<l>    set_framegrabber_param (acq_handle, 'PixelFormat', 'Mono16')</l>
+<c></c>
+<l>    grab_data (payload, region, countours, acq_handle, data)</l>
+<l>    select_obj (payload, motioncam_colorcamera_mono16, 5)</l>
+<l>endif</l>
+<c></c>
+<l>close_framegrabber (acq_handle)</l>
+<c></c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

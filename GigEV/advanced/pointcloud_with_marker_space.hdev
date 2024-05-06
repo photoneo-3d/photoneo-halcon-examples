@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="23.11.0.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>*</c>
+<c>* In order to list all available devices on the network, call 'info_framegrabber'.</c>
+<c>* Photoneo devices are described as the following:</c>
+<c>* '</c>
+<c>*   | device:48b02d681e5a_Photoneo_MotionCam3DColor</c>
+<c>*   | unique_name:48b02d681e5a_Photoneo_MotionCam3DColor</c>
+<c>*   | interface:Esen_ITF_08002708c6980a06725affff0000</c>
+<c>*   | producer:Esen</c>
+<c>*   | vendor:Photoneo</c>
+<c>*   | model:MotionCam-3D Color</c>
+<c>*   | tl_type:GEV</c>
+<c>*   | device_ip:10.6.118.6/16</c>
+<c>*   | device_sn:TBR-046</c>
+<c>*   | interface_ip:10.6.114.90/16</c>
+<c>*   | status:available</c>
+<c>* '</c>
+<c>*</c>
+<l>info_framegrabber ('GigEVision2', 'info_boards', Information, device_list)</l>
+<c></c>
+<c>*</c>
+<c>* Connection requires to input the device's ID. HALCON's GigE Vision acquisition interface</c>
+<c>* does not utilize serial numbers. Therefore one must use different ID which contains</c>
+<c>* the device's MAC address or use `DeviceUserID` if set.</c>
+<c>*</c>
+<l>device_id := '&lt;mac-addr&gt;_Photoneo_&lt;device-type&gt;'</l>
+<l>open_framegrabber ('GigEVision2', 0, 0, 0, 0, 0, 0, 'progressive', -1, 'default', -1, 'false', 'default', device_id, 0, -1, acq_handle)</l>
+<c></c>
+<c>* Apply `Default` settings.</c>
+<l>set_framegrabber_param (acq_handle, 'UserSetSelector', 'Default')</l>
+<l>set_framegrabber_param (acq_handle, 'UserSetLoad', 1)</l>
+<c></c>
+<c>* HALCON sets packet size according MTU of the hosts network interface.</c>
+<c>* This causes issues with gvsp. Need to call negotiation function explicitly.</c>
+<l>get_framegrabber_param (acq_handle, 'GevSCPSPacketSize', packet_size_before)</l>
+<l>set_framegrabber_param (acq_handle, '[Stream]DeviceStreamChannelNegotiatePacketSize', 1)</l>
+<l>get_framegrabber_param (acq_handle, 'GevSCPSPacketSize', packet_size_after)</l>
+<c></c>
+<c>* 'MultiPart' payload format is recommended.</c>
+<l>set_framegrabber_param (acq_handle, 'TestPayloadFormatMode', 'MultiPart')</l>
+<c></c>
+<c>* Enable Range component.</c>
+<l>set_framegrabber_param (acq_handle, 'ComponentSelector', 'Range')</l>
+<l>set_framegrabber_param (acq_handle, 'ComponentEnable', true)</l>
+<c></c>
+<c>* Set output mode for Range component.</c>
+<l>set_framegrabber_param (acq_handle, 'Scan3dOutputMode', 'CalibratedABC_Grid')</l>
+<c></c>
+<c>* Set-up settings for marker pattern recognition.</c>
+<l>set_framegrabber_param (acq_handle, 'CoordinateSpace', 'MarkerSpace')</l>
+<l>set_framegrabber_param (acq_handle, 'RecognizeMarkers', true)</l>
+<c></c>
+<l>set_framegrabber_param (acq_handle, 'ChunkModeActive', true)</l>
+<l>set_framegrabber_param (acq_handle, 'ChunkSelector', 'CurrentCameraToCoordinateSpaceTransformation')</l>
+<l>set_framegrabber_param (acq_handle, 'ChunkEnable', true)</l>
+<c></c>
+<c>* Adjust default timeout depending on payload size and network speed.</c>
+<l>set_framegrabber_param (acq_handle, 'grab_timeout', 5000)</l>
+<c></c>
+<c>* Select software trigger.</c>
+<l>set_framegrabber_param (acq_handle, 'AcquisitionMode', 'Continuous')</l>
+<l>set_framegrabber_param (acq_handle, 'TriggerSelector', 'FrameStart')</l>
+<l>set_framegrabber_param (acq_handle, 'TriggerMode', 'On')</l>
+<l>set_framegrabber_param (acq_handle, 'TriggerSource', 'Software')</l>
+<c></c>
+<l>grab_image_start (acq_handle, -1)</l>
+<c></c>
+<l>for Index := 1 to 5 by 1</l>
+<l>    set_framegrabber_param (acq_handle, 'TriggerSoftware', 1)</l>
+<c>    * Grab will fail if marker was not recognized</c>
+<l>    grab_data_async (payload, region, countours, acq_handle, 5000, data)</l>
+<l>    select_obj (payload, intensity, 1)</l>
+<l>    select_obj (payload, pointcloud_x, 2)</l>
+<l>    select_obj (payload, pointcloud_y, 3)</l>
+<l>    select_obj (payload, pointcloud_z, 4)</l>
+<c>    </c>
+<c>    * ChunkCurrentCameraToCoordinateSpaceTransformationSelector contains the 3x4 transformation matrix:</c>
+<c>    * Rot00, Rot01, Rot02, TransX</c>
+<c>    * Rot10, Rot11, Rot12, TransY</c>
+<c>    * Rot20, Rot21, Rot22, TransZ</c>
+<l>    set_framegrabber_param (acq_handle, 'ChunkCurrentCameraToCoordinateSpaceTransformationSelector', 'Rot00')</l>
+<l>    get_framegrabber_param (acq_handle, 'ChunkCurrentCameraToCoordinateSpaceTransformationValue', transformation_rot_00)</l>
+<l>    set_framegrabber_param (acq_handle, 'ChunkCurrentCameraToCoordinateSpaceTransformationSelector', 'TransX')</l>
+<l>    get_framegrabber_param (acq_handle, 'ChunkCurrentCameraToCoordinateSpaceTransformationValue', transformation_trans_x)</l>
+<c></c>
+<l>    stop()</l>
+<l>endfor</l>
+<c></c>
+<l>close_framegrabber (acq_handle)</l>
+<c></c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>
