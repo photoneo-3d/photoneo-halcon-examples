@@ -67,25 +67,111 @@
 <l>set_framegrabber_param (acq_handle, 'TriggerMode', 'On')</l>
 <l>set_framegrabber_param (acq_handle, 'TriggerSource', 'Software')</l>
 <c></c>
+<c>* Trigger a single frame for marker recognition.</c>
+<l>grab_image_start (acq_handle, -1)</l>
+<l>set_framegrabber_param (acq_handle, 'TriggerSoftware', 1)</l>
+<c>* Note: Grab will fail if marker was not recognized!</c>
+<l>grab_data_async (payload, region, countours, acq_handle, 5000, data)</l>
+<c></c>
+<c>* Cancel grabbing in order to change scanning settings.</c>
+<l>set_framegrabber_param (acq_handle, 'do_abort_grab', 1)</l>
+<c></c>
+<c>* Read the transformation matrix and convert it into a 3D pose</c>
+<l>hom_mat3d_identity (trans_mat)</l>
+<c></c>
+<c>* ChunkCurrentCameraToCoordinateSpaceTransformation[Selector|Value] contains the 3x4 transformation matrix:</c>
+<c>* Rot00, Rot01, Rot02, TransX</c>
+<c>* Rot10, Rot11, Rot12, TransY</c>
+<c>* Rot20, Rot21, Rot22, TransZ</c>
+<c></c>
+<l>selector_name := 'ChunkCurrentCameraToCoordinateSpaceTransformationSelector'</l>
+<l>value_name    := 'ChunkCurrentCameraToCoordinateSpaceTransformationValue'</l>
+<c></c>
+<l>set_framegrabber_param (acq_handle, selector_name, 'Rot00')</l>
+<l>get_framegrabber_param (acq_handle, value_name, transf_rot_00)</l>
+<l>trans_mat[0] := transf_rot_00</l>
+<l>set_framegrabber_param (acq_handle, selector_name, 'Rot01')</l>
+<l>get_framegrabber_param (acq_handle, value_name, transf_rot_01)</l>
+<l>trans_mat[1] := transf_rot_01</l>
+<l>set_framegrabber_param (acq_handle, selector_name, 'Rot02')</l>
+<l>get_framegrabber_param (acq_handle, value_name, transf_rot_02)</l>
+<l>trans_mat[2] := transf_rot_02</l>
+<l>set_framegrabber_param (acq_handle, selector_name, 'TransX')</l>
+<l>get_framegrabber_param (acq_handle, value_name, transf_trans_x)</l>
+<l>trans_mat[3] := transf_trans_x</l>
+<l>set_framegrabber_param (acq_handle, selector_name, 'Rot10')</l>
+<l>get_framegrabber_param (acq_handle, value_name, transf_rot_10)</l>
+<l>trans_mat[4] := transf_rot_10</l>
+<l>set_framegrabber_param (acq_handle, selector_name, 'Rot11')</l>
+<l>get_framegrabber_param (acq_handle, value_name, transf_rot_11)</l>
+<l>trans_mat[5] := transf_rot_11</l>
+<l>set_framegrabber_param (acq_handle, selector_name, 'Rot12')</l>
+<l>get_framegrabber_param (acq_handle, value_name, transf_rot_12)</l>
+<l>trans_mat[6] := transf_rot_12</l>
+<l>set_framegrabber_param (acq_handle, selector_name, 'TransY')</l>
+<l>get_framegrabber_param (acq_handle, value_name, transf_trans_y)</l>
+<l>trans_mat[7] := transf_trans_y</l>
+<l>set_framegrabber_param (acq_handle, selector_name, 'Rot20')</l>
+<l>get_framegrabber_param (acq_handle, value_name, transf_rot_20)</l>
+<l>trans_mat[8] := transf_rot_20</l>
+<l>set_framegrabber_param (acq_handle, selector_name, 'Rot21')</l>
+<l>get_framegrabber_param (acq_handle, value_name, transf_rot_21)</l>
+<l>trans_mat[9] := transf_rot_21</l>
+<l>set_framegrabber_param (acq_handle, selector_name, 'Rot22')</l>
+<l>get_framegrabber_param (acq_handle, value_name, transf_rot_22)</l>
+<l>trans_mat[10] := transf_rot_22</l>
+<l>set_framegrabber_param (acq_handle, selector_name, 'TransZ')</l>
+<l>get_framegrabber_param (acq_handle, value_name, transf_trans_z)</l>
+<l>trans_mat[11] := transf_trans_z</l>
+<c></c>
+<l>hom_mat3d_to_pose (trans_mat, marker_space_pose)</l>
+<c></c>
+<c>* Disable chunk data for next frame.</c>
+<l>set_framegrabber_param (acq_handle, 'ChunkSelector', 'CurrentCameraToCoordinateSpaceTransformation')</l>
+<l>set_framegrabber_param (acq_handle, 'ChunkEnable', false)</l>
+<c>* Or disable all chunks.</c>
+<l>set_framegrabber_param (acq_handle, 'ChunkModeActive', false)</l>
+<c></c>
+<c>* Disable marker plate recognition.</c>
+<l>set_framegrabber_param (acq_handle, 'RecognizeMarkers', false)</l>
+<c></c>
 <l>grab_image_start (acq_handle, -1)</l>
 <c></c>
 <l>for Index := 1 to 5 by 1</l>
 <l>    set_framegrabber_param (acq_handle, 'TriggerSoftware', 1)</l>
-<c>    * Grab will fail if marker was not recognized</c>
 <l>    grab_data_async (payload, region, countours, acq_handle, 5000, data)</l>
 <l>    select_obj (payload, intensity, 1)</l>
 <l>    select_obj (payload, pointcloud_x, 2)</l>
 <l>    select_obj (payload, pointcloud_y, 3)</l>
 <l>    select_obj (payload, pointcloud_z, 4)</l>
 <c>    </c>
-<c>    * ChunkCurrentCameraToCoordinateSpaceTransformationSelector contains the 3x4 transformation matrix:</c>
-<c>    * Rot00, Rot01, Rot02, TransX</c>
-<c>    * Rot10, Rot11, Rot12, TransY</c>
-<c>    * Rot20, Rot21, Rot22, TransZ</c>
-<l>    set_framegrabber_param (acq_handle, 'ChunkCurrentCameraToCoordinateSpaceTransformationSelector', 'Rot00')</l>
-<l>    get_framegrabber_param (acq_handle, 'ChunkCurrentCameraToCoordinateSpaceTransformationValue', transformation_rot_00)</l>
-<l>    set_framegrabber_param (acq_handle, 'ChunkCurrentCameraToCoordinateSpaceTransformationSelector', 'TransX')</l>
-<l>    get_framegrabber_param (acq_handle, 'ChunkCurrentCameraToCoordinateSpaceTransformationValue', transformation_trans_x)</l>
+<c>    * Decompose RGB image (in case of ColorCam).</c>
+<l>    decompose3 (intensity, intensity_red, intensity_green, intensity_blue)</l>
+<l>    rgb3_to_gray (intensity_red, intensity_green, intensity_blue, intensity_gray)</l>
+<c>    </c>
+<c>    * Create 3D model from the 3 point cloud channels.</c>
+<l>    xyz_to_object_model_3d (pointcloud_x, pointcloud_y, pointcloud_z, object_model_3d)</l>
+<c>    </c>
+<c>    * Use the calculated 3D pose to transform the 3D model.</c>
+<l>    rigid_trans_object_model_3d (object_model_3d, marker_space_pose, object_model_3d)</l>
+<c>    </c>
+<c>    * Add texture (intensity) to the point cloud in the 3D model.</c>
+<l>    get_region_points (intensity_gray, rows, columns)</l>
+<l>    get_grayval (intensity_gray, rows, columns, intensity_values)</l>
+<l>    set_object_model_3d_attrib_mod (object_model_3d, '&amp;intensity', 'points', intensity_values)</l>
+<c></c>
+<c>    * Display the 3D model.</c>
+<l>    dev_close_window ()</l>
+<l>    dev_open_window (0, 0, 512, 512, 'black', window_handle)</l>
+<l>    set_display_font (window_handle, 18, 'mono', 'true', 'false')</l>
+<l>    instructions[0] := 'Rotate: Left button'</l>
+<l>    instructions[1] := 'Zoom:   Shift + left button'</l>
+<l>    instructions[2] := 'Move:   Ctrl + left button'</l>
+<l>    gen_param_name  := ['disp_pose', 'color_attrib_0', 'color_0']</l>
+<l>    gen_param_value := ['true', '&amp;intensity', 'grey']</l>
+<l>    title := '3D object model representing the scene'</l>
+<c></c>
+<l>    visualize_object_model_3d (window_handle, object_model_3d, [], [], gen_param_name, gen_param_value, title, [], [instructions], pose_out)</l>
 <c></c>
 <l>    stop()</l>
 <l>endfor</l>
