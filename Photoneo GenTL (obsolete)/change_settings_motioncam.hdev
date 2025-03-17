@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<hdevelop file_version="1.2" halcon_version="21.11.0.0">
+<hdevelop file_version="1.2" halcon_version="23.11.0.0">
 <procedure name="main">
 <interface/>
 <body>
@@ -49,7 +49,7 @@
 <c>* &lt;1, 20&gt;</c>
 <l>get_framegrabber_param (AcqHandle, 'ScanMultiplier', scan_multiplier)</l>
 <l>set_framegrabber_param (AcqHandle, 'ScanMultiplier', 5)</l>
-<c>* `Normal` or `Interreflections`</c>
+<c>* `Normal`, `Interreflections` or `HighFrequency`</c>
 <l>get_framegrabber_param (AcqHandle, 'CodingStrategy', coding_strategy)</l>
 <l>set_framegrabber_param (AcqHandle, 'CodingStrategy', 'Normal')</l>
 <c>* `Fast`, `High` or `Ultra`</c>
@@ -91,7 +91,7 @@
 <c>* `IrregularGrid`, `RegularGrid` or `Raw`</c>
 <l>get_framegrabber_param (AcqHandle, 'OutputTopology', output_topology)</l>
 <l>set_framegrabber_param (AcqHandle, 'OutputTopology', 'Raw')</l>
-<c>* `Normal` or `Interreflections`</c>
+<c>* `Normal`, `Interreflections`, `HighFrequency` or `Sparse`</c>
 <l>get_framegrabber_param (AcqHandle, 'CameraCodingStrategy', camera_coding_strategy)</l>
 <l>set_framegrabber_param (AcqHandle, 'CameraCodingStrategy', 'Interreflections')</l>
 <c>* `Laser`, `LED` or `Color`</c>
@@ -136,10 +136,18 @@
 <c>* &lt;0, 4&gt;</c>
 <l>get_framegrabber_param (AcqHandle, 'NormalsEstimationRadius', normals_estimation_radius)</l>
 <l>set_framegrabber_param (AcqHandle, 'NormalsEstimationRadius', 1)</l>
-<c></c>
+<c>* `Off`, `Medium` or `Strong`</c>
+<l>get_framegrabber_param (AcqHandle, 'PatternCodeCorrection', pattern_code_correction)</l>
+<l>set_framegrabber_param (AcqHandle, 'PatternCodeCorrection', 'Medium')</l>
+<c>* true or false</c>
+<l>get_framegrabber_param (AcqHandle, 'GlareCompensation', glare_compensation)</l>
+<l>set_framegrabber_param (AcqHandle, 'GlareCompensation', true)</l>
+<c>* `Off` or `Medium`</c>
+<l>get_framegrabber_param (AcqHandle, 'HoleFilling', hole_filling)</l>
+<l>set_framegrabber_param (AcqHandle, 'HoleFilling', 'Medium')</l>
 <c></c>
 <c>* --&gt; Coordinates settings</c>
-<c>* `CameraSpace`, `MarkerSpace`, `RobotSpace` or `CustomSpace`</c>
+<c>* `CameraSpace`, `MarkerSpace`, `RobotSpace`, `CustomSpace` or `PrimaryCameraSpace`</c>
 <l>get_framegrabber_param (AcqHandle, 'CoordinateSpace', camera_space)</l>
 <l>set_framegrabber_param (AcqHandle, 'CoordinateSpace', 'MarkerSpace')</l>
 <c>* `Custom` or `Robot`</c>
@@ -166,7 +174,52 @@
 <c>* &lt;-999999.0, 999999.0&gt;</c>
 <l>get_framegrabber_param (AcqHandle, 'MarkerScaleHeight', marker_scale_height)</l>
 <l>set_framegrabber_param (AcqHandle, 'MarkerScaleHeight', 0.50)</l>
-<c></c>
+<l>    set_framegrabber_param (AcqHandle, 'ColorSettings_SupportedExposuresSelector', 0)</l>
+<l>    get_framegrabber_param (AcqHandle, 'ColorSettings_SupportedExposure', color_settings_supported_exposure)</l>
+<l>get_framegrabber_param (AcqHandle, 'SaveTransformations', save_transformations)</l>
+<l>set_framegrabber_param (AcqHandle, 'SaveTransformations', true)</l>
+<c>* `PrimaryCamera` or `ColorCamera`</c>
+<l>get_framegrabber_param (AcqHandle, 'CameraSpace', camera_space)</l>
+<l>set_framegrabber_param (AcqHandle, 'CameraSpace', 'PrimaryCamera')</l>
+<c>* `Perspective`</c>
+<l>get_framegrabber_param (AcqHandle, 'CurrentCamera_ProjectionMode', current_camera_projection_mode)</l>
+<l>set_framegrabber_param (AcqHandle, 'CurrentCamera_ProjectionMode', 'Perspective')</l>
+<c>* `Row0Col0`, `Row0Col1`, `Row0Col2`, `Row1Col0`, .. , `Row2Col2`</c>
+<l>get_framegrabber_param (AcqHandle, 'CurrentCamera_Perspective_CameraMatrixSelector', current_camera_camera_matrix_selector)</l>
+<l>set_framegrabber_param (AcqHandle, 'CurrentCamera_Perspective_CameraMatrixSelector', 'Row0Col1')</l>
+<c>* ReadOnly</c>
+<l>get_framegrabber_param (AcqHandle, 'CurrentCamera_Perspective_CameraMatrixValue', current_camera_camera_matrix_value)</l>
+<c>* &lt;0, 11&gt;</c>
+<l>get_framegrabber_param (AcqHandle, 'CurrentCamera_Perspective_DistortionCoefficientSelector', current_camera_distortion_coefficient_selector)</l>
+<l>set_framegrabber_param (AcqHandle, 'CurrentCamera_Perspective_DistortionCoefficientSelector', 3)</l>
+<c>* ReadOnly</c>
+<l>get_framegrabber_param (AcqHandle, 'CurrentCamera_Perspective_DistortionCoefficientValue', current_camera_distortion_coefficient_value)</l>
+<l>get_framegrabber_param (AcqHandle, 'CurrentCamera_OrthogonalSettingsWidth', current_camera_orthogonal_settings_width)</l>
+<l>get_framegrabber_param (AcqHandle, 'CurrentCamera_OrthogonalSettingsHeight', current_camera_orthogonal_settings_height)</l>
+<c>* `Row0Col0`, `Row0Col1`, `Row0Col2`, `Row1Col0`, .. , `Row2Col2`</c>
+<l>get_framegrabber_param (AcqHandle, 'CurrentCamera_WorldToCamera_RotationMatrixSelector', current_camera_world_to_camera_rotation_matrix_selector)</l>
+<l>set_framegrabber_param (AcqHandle, 'CurrentCamera_WorldToCamera_RotationMatrixSelector', 'Row0Col1')</l>
+<c>* ReadOnly</c>
+<l>get_framegrabber_param (AcqHandle, 'CurrentCamera_WorldToCamera_RotationMatrixValue', current_camera_world_to_camera_rotation_matrix_value)</l>
+<c>* `X`, `Y` or `Z`</c>
+<l>get_framegrabber_param (AcqHandle, 'CurrentCamera_WorldToCamera_TranslationVectorSelector', current_camera_world_to_camera_translation_vector_selector)</l>
+<l>set_framegrabber_param (AcqHandle, 'CurrentCamera_WorldToCamera_TranslationVectorSelector', 'Z')</l>
+<c>* ReadOnly</c>
+<l>get_framegrabber_param (AcqHandle, 'CurrentCamera_WorldToCamera_TranslationVectorValue', current_camera_world_to_camera_translation_vector_value)</l>
+<l>get_framegrabber_param (AcqHandle, 'CurrentCamera_ResolutionWidth', current_camera_resolution_width)</l>
+<l>get_framegrabber_param (AcqHandle, 'CurrentCamera_ResolutionHeight', current_camera_resolution_height)</l>
+<c>* `Perspective`</c>
+<l>get_framegrabber_param (AcqHandle, 'CurrentPrimaryCamera_ProjectionMode', current_primary_camera_projection_mode)</l>
+<l>set_framegrabber_param (AcqHandle, 'CurrentPrimaryCamera_ProjectionMode', 'Perspective')</l>
+<c>* ReadOnly</c>
+<l>get_framegrabber_param (AcqHandle, 'CurrentPrimaryCamera_ResolutionWidth', current_primary_camera_resolution_width)</l>
+<l>get_framegrabber_param (AcqHandle, 'CurrentPrimaryCamera_ResolutionHeight', current_primary_camera_resolution_height)</l>
+<c>* `Perspective`</c>
+<l>get_framegrabber_param (AcqHandle, 'CurrentColorCamera_ProjectionMode', current_color_camera_projection_mode)</l>
+<l>set_framegrabber_param (AcqHandle, 'CurrentColorCamera_ProjectionMode', 'Perspective')</l>
+<c>* ReadOnly</c>
+<l>get_framegrabber_param (AcqHandle, 'CurrentColorCamera_ResolutionWidth', current_color_camera_resolution_width)</l>
+<l>get_framegrabber_param (AcqHandle, 'CurrentColorCamera_ResolutionHeight', current_color_camera_resolution_height)</l>
 <c></c>
 <c>* --&gt; Calibration settings</c>
 <c>* `Row0Col0`, `Row0Col1`, `Row0Col2`, `Row1Col0`, .. , `Row2Col2`</c>
@@ -238,9 +291,7 @@
 <l>    set_framegrabber_param (AcqHandle, 'ColorSettings_SupportedCapturingModesSelector', 0)</l>
 <l>    get_framegrabber_param (AcqHandle, 'ColorSettings_SupportedCapturingModeResolutionWidth', color_settings_supported_capturing_mode_resolution_width)</l>
 <l>    get_framegrabber_param (AcqHandle, 'ColorSettings_SupportedCapturingModeResolutionHeight', color_settings_supported_capturing_mode_resolution_height)</l>
-<c>    * Set selected value to the settings</c>
-<l>    set_framegrabber_param (AcqHandle, 'ColorSettings_CapturingModeResolutionWidth', color_settings_supported_capturing_mode_resolution_width)</l>
-<l>    set_framegrabber_param (AcqHandle, 'ColorSettings_CapturingModeResolutionHeight', color_settings_supported_capturing_mode_resolution_height)</l>
+<c></c>
 <l>endif</l>
 <c>* Set required gamma value in range [0.0, 1.0]</c>
 <l>set_framegrabber_param (AcqHandle, 'ColorSettings_Gamma', 1.0)</l>
@@ -250,7 +301,9 @@
 <l>set_framegrabber_param (AcqHandle, 'ColorSettings_WhiteBalanceR', 0.5)</l>
 <l>set_framegrabber_param (AcqHandle, 'ColorSettings_WhiteBalanceG', 0.5)</l>
 <l>set_framegrabber_param (AcqHandle, 'ColorSettings_WhiteBalanceB', 0.5)</l>
-<c></c>
+<c>* true or false</c>
+<l>set_framegrabber_param (AcqHandle, 'ColorSettings_RemoveFalseColors', true)</l>
+<l>get_framegrabber_param (AcqHandle, 'ColorSettings_RemoveFalseColors', color_settings_remove_false_colors)</l>
 <c></c>
 <c>* --&gt; FrameOutput settings</c>
 <c>* Enable/Disable transfer of spefific images (true or false)</c>

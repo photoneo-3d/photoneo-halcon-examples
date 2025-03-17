@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<hdevelop file_version="1.2" halcon_version="21.11.0.0">
+<hdevelop file_version="1.2" halcon_version="22.11.0.0">
 <procedure name="main">
 <interface/>
 <body>
@@ -68,6 +68,29 @@
 <l>select_obj (ImageData, ConfidenceMap, 9)</l>
 <l>* select_obj (ImageData, EventMap, 10)</l>
 <l>* select_obj (ImageData, ColorCameraImage, 11)</l>
+<c></c>
+<c>* Save last scan to a specific file format.</c>
+<c>* Supported file formats are:</c>
+<c>* Text file (*.txt)</c>
+<c>* Stanford's PLY (*.ply)</c>
+<c>* Leica's PTX (*.ptx)</c>
+<c>* Photoneo's Raw data format (*.praw)</c>
+<c>* Raw images data format in tif (*.tif)</c>
+<c></c>
+<c>* 'SaveLastScanFilePath' - Path where the file should be saved.</c>
+<c>*     Absolute path is preferred (e.g. C:/Users/Public/my.praw, /home/&lt;user&gt;/my.praw),</c>
+<c>*     relative path points to PhoXiControl's path (folder must exist).</c>
+<c>* 'SaveLastScanFrameId' - Save only if last scan has the same frame index.</c>
+<c>* 'SaveLastScanJsonOptions' - (optional) Configure save operations with options. Format:</c>
+<c>*     A simple list of options in json format where a key matches an option in GUI.</c>
+<c>*     Key uses the same type as in GUI, e.g. boolean, int, string, ..</c>
+<c>*     If the string key does not match the existing option, the option is ignored.</c>
+<c></c>
+<l>json_options := '{"UseCompression": true}'</l>
+<l>set_framegrabber_param (AcqHandle, 'SaveLastScanFilePath', 'C:/Users/Public/my.praw')</l>
+<l>set_framegrabber_param (AcqHandle, 'SaveLastScanFrameId', -1)</l>
+<l>set_framegrabber_param (AcqHandle, 'SaveLastScanJsonOptions', json_options)</l>
+<l>set_framegrabber_param (AcqHandle, 'SaveLastScan', -1)</l>
 <c> </c>
 <c>* Do something with data</c>
 <c></c>
