@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.05.0.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>*</c>
+<c>* In order to list all available devices on the network, call 'info_framegrabber'.</c>
+<c>* Photoneo devices are described as the following:</c>
+<c>* '</c>
+<c>*   | device:48b02d681e5a_Photoneo_MotionCam3DColor</c>
+<c>*   | unique_name:48b02d681e5a_Photoneo_MotionCam3DColor</c>
+<c>*   | interface:Esen_ITF_08002708c6980a06725affff0000</c>
+<c>*   | producer:Esen</c>
+<c>*   | vendor:Photoneo</c>
+<c>*   | model:MotionCam-3D Color</c>
+<c>*   | tl_type:GEV</c>
+<c>*   | device_ip:10.6.118.6/16</c>
+<c>*   | device_sn:TBR-046</c>
+<c>*   | interface_ip:10.6.114.90/16</c>
+<c>*   | status:available</c>
+<c>* '</c>
+<c>*</c>
+<l>info_framegrabber ('GigEVision2', 'info_boards', Information, device_list)</l>
+<l>* device_id := '&lt;mac-addr&gt;_Photoneo_&lt;device-type&gt;'</l>
+<c></c>
+<l>device_id_trg_053 := '48b02d9729a9_Photoneo_MotionCam3DColorL'</l>
+<l>connect_to_device (device_id_trg_053, acq_handle_trg_053)</l>
+<c></c>
+<l>device_id_2020_12_043_LC3 := '00044be4d015_Photoneo_PhoXi3DScannerXS'</l>
+<l>connect_to_device (device_id_2020_12_043_LC3, acq_handle_2020_12_043_LC3)</l>
+<c></c>
+<l>par_start&lt;thread_id1&gt; : freerun (acq_handle_trg_053, 200)</l>
+<l>par_start&lt;thread_id2&gt; : software_trigger (acq_handle_2020_12_043_LC3, 50)</l>
+<l>par_join ([thread_id1, thread_id2])</l>
+<c></c>
+<l>stop ()</l>
+<c></c>
+<l>close_framegrabber (acq_handle_trg_053)</l>
+<l>close_framegrabber (acq_handle_2020_12_043_LC3)</l>
+<c></c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+<procedure name="freerun">
+<interface>
+<ic>
+<par name="handle" base_type="ctrl" dimension="0"/>
+<par name="iterations" base_type="ctrl" dimension="0"/>
+</ic>
+</interface>
+<body>
+<l>set_framegrabber_param (handle, 'AcquisitionMode', 'Continuous')</l>
+<l>set_framegrabber_param (handle, 'TriggerSelector', 'FrameStart')</l>
+<l>set_framegrabber_param (handle, 'TriggerMode', 'Off')</l>
+<c></c>
+<l>for Index := 1 to iterations by 1</l>
+<c>    * Rerieve MultiPart payload.</c>
+<l>    grab_data (payload, region, countours, handle, data)</l>
+<c>    * Do something with the payload...</c>
+<l>endfor</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="freerun">
+<parameters>
+<parameter id="handle"/>
+<parameter id="iterations"/>
+</parameters>
+</docu>
+</procedure>
+<procedure name="software_trigger">
+<interface>
+<ic>
+<par name="handle" base_type="ctrl" dimension="0"/>
+<par name="iterations" base_type="ctrl" dimension="0"/>
+</ic>
+</interface>
+<body>
+<l>set_framegrabber_param (handle, 'AcquisitionMode', 'Continuous')</l>
+<l>set_framegrabber_param (handle, 'TriggerSelector', 'FrameStart')</l>
+<l>set_framegrabber_param (handle, 'TriggerMode', 'On')</l>
+<l>set_framegrabber_param (handle, 'TriggerSource', 'Software')</l>
+<c></c>
+<l>grab_image_start (handle, -1)</l>
+<l>for Index := 1 to iterations by 1</l>
+<l>    set_framegrabber_param (handle, 'TriggerSoftware', 1)</l>
+<c>    * Rerieve MultiPart payload.</c>
+<l>    grab_data_async (payload, region, countours, handle, 5000, data)</l>
+<c>    * Do something with the payload...</c>
+<l>    select_obj (payload, texture, 1)</l>
+<l>endfor</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="software_trigger">
+<parameters>
+<parameter id="handle"/>
+<parameter id="iterations"/>
+</parameters>
+</docu>
+</procedure>
+<procedure name="connect_to_device">
+<interface>
+<ic>
+<par name="device_id" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="device_handle" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<l>open_framegrabber ('GigEVision2', 0, 0, 0, 0, 0, 0, 'progressive', -1, 'default', -1, 'false', 'default', device_id, 0, -1, device_handle)</l>
+<c></c>
+<l>get_framegrabber_param (device_handle, 'GevSCPSPacketSize', packet_size_before)</l>
+<l>set_framegrabber_param (device_handle, '[Stream]DeviceStreamChannelNegotiatePacketSize', 1)</l>
+<l>get_framegrabber_param (device_handle, 'GevSCPSPacketSize', packet_size_after)</l>
+<c></c>
+<l>set_framegrabber_param (device_handle, 'UserSetSelector', 'Default')</l>
+<l>set_framegrabber_param (device_handle, 'UserSetLoad', 1)</l>
+<c></c>
+<l>set_framegrabber_param (device_handle, 'TestPayloadFormatMode', 'MultiPart')</l>
+<l>set_framegrabber_param (device_handle, 'grab_timeout', 5000)</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="connect_to_device">
+<parameters>
+<parameter id="device_handle"/>
+<parameter id="device_id"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>
