@@ -1,11 +1,22 @@
 # Photoneo GigE Vision examples
 
 This folder contains examples for interacting with Photoneo 3D Sensors through
-the GigE Vision protocol.
+the GigE Vision protocol using MVTec HALCON's `GigEVision2` acquisition
+interface.
 
 ⚠️
 These examples require PhoXi firmware version 1.13.0.
 ⚠️
+
+## Examples
+
+- [`basic/`](basic/README.md) — connect & grab, freerun, chunk data, reading/writing device parameters, threaded multi-device scanning.
+- [`advanced/`](advanced/README.md) — point cloud reconstruction (`CalibratedABC_Grid` and `ProjectedC`), normals, marker-space transforms, hardware trigger, texture/color modes, user sets.
+
+The rest of this document is the GenICam/GigE Vision reference vocabulary
+(components, trigger configuration, coordinate maps) that every example above
+assumes without re-explaining — read it once before working through the
+examples.
 
 ## GenICam Features
 
@@ -100,7 +111,7 @@ for a way on how this can be used to identify the parts.)
 
 The `Intensity` component contains the texture image depending on the
 `TextureSource` or `CameraTextureSource` setting. The pixel format is `Mono10`
-or `Mono12` for monochromatic textures (`Laser` or `Led`), depending on the
+or `Mono12` for monochromatic textures (`Laser` or `LED`), depending on the
 device, or one of `RGB8` or `Mono16` for color textures.
 
 #### Color texture
